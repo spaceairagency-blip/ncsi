@@ -182,6 +182,33 @@ nav ul {
         display: none;
     }
 }
+.title{
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    margin: 20px 0;
+    color: #2a2827;
+}
+.latest-video-hr {
+    border: none;
+    border-top: 2px solid #ff7e67;
+    margin: 0 5%;
+    width: 85%;
+    margin-bottom: 20px;
+}
+.vid1, .vid2, .vid3 {
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0,
+0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease
+}
+.vid1:hover, .vid2:hover, .vid3:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0,
+0, 0.1);
+}
     </style>
 </head>
 <body>
@@ -208,7 +235,7 @@ nav ul {
     <nav class="mobile-bottom-bar">
         <ul>
             <li>
-                <a href="home.html" class="button here">
+                <a href="home.html" class="button">
                     <span class="icon"><i class="fa-solid fa-house"></i></span>
                     Home
                 </a>
@@ -251,6 +278,56 @@ nav ul {
             </li>
         </ul>
     </nav>
-
+    <!-- MAIN SECTION -->
+    <main>
+        <section style="padding: 2rem 5%;">
+            <h1>Welcome to Nabhan Crafts Ideas!</h1>
+            <p style="margin-top: 1rem; font-size: 1.1rem; line-height: 1.6;">
+                Explore a world of creativity and inspiration with our collection of craft ideas, tutorials, and DIY projects. Whether you're a beginner or an experienced crafter, we have something for everyone. Dive into our categories and start creating today!
+            </p>
+        </section>
+        <section class="yt-videos">
+            <h2 style="padding: 0 5%;">Latest YouTube Videos</h2><hr class="latest-video-hr">
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; padding: 0 5%; margin-top: 1rem;">
+                <div class="vid1">
+                    <div class="title">
+                        <h3>Minecraft Diamond Sword Drawing</h3>
+                    </div>
+                    <div class="video">
+                        <iframe width="300" height="170" src="https://www.youtube.com/embed/gksN1eV3OHg" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="vid2">
+                    <div class="title">
+                        <h3>Paper Plane Craft</h3>
+                    </div>
+                    <div class="video">
+                        <iframe width="300" height="170" src="https://www.youtube.com/embed/Y0Vu3zAsjOI" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="vid3">
+                    <div class="title">
+                        <h3>Easy Mandala Drawing</h3>
+                    </div>
+                    <div class="video">
+                        <iframe width="300" height="170" src="https://www.youtube.com/embed/OD0EPMWPVS0" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="subscribe-our-channel">
+            <h2 style="padding: 0 5%; margin-top: 2rem;">Subscribe to Our YouTube Channel</h2><hr class="latest-video-hr">
+            <p style="padding: 0 5%; margin-top: 1rem; font-size: 1.1rem; line-height: 1.6;">
+                Don't miss out on our latest craft tutorials and creative ideas! Subscribe to our YouTube channel and hit the notification bell to stay updated with new videos every week. Join our community of crafters and let's create something amazing together!
+            </p>
+            <div class="btn-area">
+                <div class="amaiging-button">
+                    <a href="https://www.youtube.com/@nabhans_crafts_ideas" class="button special" style="padding: 12px 24px; font-size: 1rem; margin-top: 1rem; display: inline-block; margin-left: 4.5%; margin-bottom: 20px;">
+                        Subscribe Now
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
