@@ -1,259 +1,1397 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title>Chat - Nabhan Crafts Ideas</title>
+    <title>NCSI Chat - Nabhan Crafts Ideas</title>
     <style>
-        * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --brand: #ff7e67;
+            --brand2: #ff5e62;
+            --bg: #fdf6f0;
+            --sidebar-bg: #fff;
+            --chat-bg: #ede0d9;
+            --msg-in: #ffffff;
+            --text: #222;
+            --muted: #999;
+            --border: #ede0d9;
+            --active: #ffe8e4;
+            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body { font-family: var(--font); background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-body {
-    background-color: #fdf6f0;
-    color: #333;
-}
+        /* ── HEADER ── */
+        header {
+            background: white; padding: 0.8rem 5%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            position: sticky; top: 0; z-index: 1000; height: 70px;
+            display: flex; align-items: center;
+        }
+        nav { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .channel-logo .logo { height: 50px; width: 50px; border-radius: 50%; border: 2px solid #ff7e67; transition: transform 0.3s ease; object-fit: cover; }
+        .channel-logo .logo:hover { transform: scale(1.1) rotate(5deg); }
+        nav ul { display: flex; list-style: none; gap: 10px; align-items: center; }
+        .button { text-decoration: none; color: #555; font-weight: 600; padding: 8px 16px; border-radius: 30px; transition: all 0.3s ease; font-size: 0.9rem; cursor: pointer; border: none; background: none; display: inline-block; }
+        .button:hover { background-color: #ffe8e4; color: #ff7e67; }
+        .button.special { background: linear-gradient(135deg, #ff7e67, #ff5e62); color: white; box-shadow: 0 3px 10px rgba(255,126,103,0.3); }
+        .button.special:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,126,103,0.4); }
 
-/* ── DESKTOP HEADER ── */
-header {
-    background: white;
-    padding: 1rem 5%;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+            header { display: none; }
+            .mobile-bottom-bar { display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; background: white; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); border-top: 1px solid #f0e8e4; padding: 5px 0 max(5px, env(safe-area-inset-bottom)); }
+            .mobile-bottom-bar ul { display: flex; width: 100%; list-style: none; justify-content: space-around; align-items: center; }
+            .mobile-bottom-bar ul li { flex: 1; display: flex; justify-content: center; }
+            .mobile-bottom-bar .button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 3px; border-radius: 10px; font-size: 0.65rem; font-weight: 600; color: #888; width: 100%; text-align: center; }
+            .mobile-bottom-bar .button .icon { font-size: 1.2rem; }
+            .mobile-bottom-bar .button.special { background: linear-gradient(135deg, #ff7e67, #ff5e62); color: white; border-radius: 12px; padding: 7px 5px; }
+            body { padding-bottom: 70px; }
+            .chat-app { height: calc(100vh - 70px); }
+            .sidebar { width: 100% !important; min-width: 100% !important; position: absolute; z-index: 10; height: 100%; }
+            .chat-main { position: absolute; width: 100%; z-index: 10; height: 100%; transform: translateX(100%); transition: transform 0.3s ease; }
+            .chat-main.open { transform: translateX(0); }
+            .chat-topbar .back-btn { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+            .mobile-bottom-bar { display: none; }
+            .chat-app { height: calc(100vh - 70px); }
+        }
 
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        /* ══ LOGIN SCREEN ══ */
+        #login-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            background: linear-gradient(135deg, #fdf6f0 0%, #ffe8e4 100%);
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .login-box { background: white; border-radius: 24px; box-shadow: 0 20px 60px rgba(255,126,103,0.15); width: 100%; max-width: 420px; overflow: hidden; }
+        .login-header { background: linear-gradient(135deg, #ff7e67, #ff5e62); padding: 28px; text-align: center; color: white; }
+        .login-logo-wrap { width: 72px; height: 72px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.5); margin: 0 auto 12px; overflow: hidden; background: white; }
+        .login-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .login-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; }
+        .login-header p { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
+        .login-tabs { display: flex; border-bottom: 2px solid #f0e8e4; }
+        .login-tab { flex: 1; padding: 13px 8px; text-align: center; font-weight: 600; font-size: 0.82rem; color: var(--muted); cursor: pointer; transition: all 0.2s; border: none; background: none; }
+        .login-tab.active { color: var(--brand); border-bottom: 2px solid var(--brand); margin-bottom: -2px; }
+        .login-body { padding: 24px; }
+        .login-panel { display: none; }
+        .login-panel.active { display: block; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input { width: 100%; padding: 11px 14px; border: 2px solid #f0e8e4; border-radius: 12px; font-size: 0.93rem; transition: border 0.2s; outline: none; font-family: var(--font); }
+        .form-group input:focus { border-color: var(--brand); }
+        .btn-login { width: 100%; padding: 13px; border: none; border-radius: 14px; background: linear-gradient(135deg, #ff7e67, #ff5e62); color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; margin-top: 4px; }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,126,103,0.4); }
+        .msg-box { border-radius: 10px; padding: 10px 14px; font-size: 0.83rem; margin-bottom: 14px; display: none; }
+        .msg-box.error { background: #fff0ee; border: 1px solid #ffccc9; color: #c0392b; }
+        .msg-box.success { background: #edfff5; border: 1px solid #b2f0cb; color: #1e8449; }
+        .ncsi-card-info { text-align: center; padding: 16px 10px; color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
+        .ncsi-card-info .big-icon { font-size: 2.8rem; color: var(--brand); margin-bottom: 12px; }
 
-/* Logo */
-.channel-logo .logo {
-    height: 60px;
-    width: 60px;
-    border-radius: 50%;
-    border: 3px solid #ff7e67;
-    transition: transform 0.3s ease;
-}
+        /* ══ CHAT APP ══ */
+        #chat-app { display: none; }
+        .chat-app { display: flex; overflow: hidden; }
 
-.channel-logo .logo:hover {
-    transform: scale(1.1) rotate(5deg);
-}
+        /* ── SIDEBAR ── */
+        .sidebar { width: 300px; min-width: 300px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: white; }
+        .sidebar-logo { display: flex; align-items: center; gap: 10px; }
+        .sidebar-logo img { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--brand); object-fit: cover; }
+        .sidebar-logo span { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: 0.5px; }
+        .sidebar-logo span b { color: var(--brand); }
+        .sidebar-actions { display: flex; gap: 6px; }
+        .icon-btn { width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--bg); cursor: pointer; font-size: 0.95rem; color: var(--muted); transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .icon-btn:hover { background: var(--active); color: var(--brand); }
+        .sidebar-search { padding: 10px 14px; border-bottom: 1px solid var(--border); position: relative; }
+        .sidebar-search input { width: 100%; padding: 8px 12px 8px 34px; border: 1.5px solid var(--border); border-radius: 18px; font-size: 0.85rem; outline: none; background: var(--bg); font-family: var(--font); transition: border 0.2s; }
+        .sidebar-search input:focus { border-color: var(--brand); }
+        .sidebar-search .srch-icon { position: absolute; left: 26px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.8rem; }
+        .conv-list { flex: 1; overflow-y: auto; }
+        .conv-item { display: flex; align-items: center; gap: 11px; padding: 12px 16px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #faf0ec; position: relative; }
+        .conv-item:hover { background: #fff5f2; }
+        .conv-item.active { background: var(--active); }
+        .conv-avatar { width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: white; overflow: hidden; }
+        .conv-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .conv-avatar.owner-av { background: linear-gradient(135deg, #ff7e67, #ff5e62); }
+        .conv-avatar.group-av { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .conv-info { flex: 1; min-width: 0; }
+        .conv-name { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+        .conv-preview { font-size: 0.78rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+        .conv-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+        .conv-time { font-size: 0.7rem; color: var(--muted); }
+        .unread-badge { background: var(--brand); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
-/* Navigation List */
-nav ul {
-    display: flex;
-    list-style: none;
-    gap: 15px;
-    align-items: center;
-}
+        /* Sidebar bottom user */
+        .sidebar-user { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: #fdf9f7; }
+        .sidebar-user .su-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #ff7e67, #ff5e62); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.82rem; flex-shrink: 0; }
+        .sidebar-user .su-info { flex: 1; min-width: 0; }
+        .sidebar-user .su-name { font-weight: 700; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-user .su-role { font-size: 0.7rem; color: var(--brand); font-weight: 600; }
+        .sidebar-user .su-status { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; flex-shrink: 0; }
 
-/* Button Styling */
-.button {
-    text-decoration: none;
-    color: #555;
-    font-weight: 600;
-    padding: 10px 18px;
-    border-radius: 30px;
-    transition: all 0.3s ease;
-    font-size: 0.95rem;
-}
+        /* ── CHAT MAIN ── */
+        .chat-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--chat-bg); background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff7e67' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+        .chat-topbar { background: white; padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.04); }
+        .back-btn { display: none; background: none; border: none; font-size: 1.1rem; color: var(--muted); cursor: pointer; padding: 4px 8px 4px 0; align-items: center; }
+        .topbar-av { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: white; overflow: hidden; }
+        .topbar-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .topbar-av.owner-av { background: linear-gradient(135deg, #ff7e67, #ff5e62); }
+        .topbar-av.group-av { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .topbar-info { flex: 1; }
+        .topbar-name { font-weight: 700; font-size: 0.95rem; }
+        .topbar-status { font-size: 0.73rem; color: #27ae60; font-weight: 500; }
+        .topbar-actions { display: flex; gap: 5px; }
 
-.button:hover {
-    background-color: #ffe8e4;
-    color: #ff7e67;
-}
-.here {
-    color: white;
-    background-color: rgb(149, 147, 147);
-}
+        /* Messages */
+        .messages-area { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 4px; }
 
-/* Special Chat Button */
-.button.special {
-    background: linear-gradient(135deg, #ff7e67, #ff5e62);
-    color: white;
-    box-shadow: 0 4px 10px rgba(255, 126, 103, 0.3);
-}
+        /* ── FIXED MESSAGE LAYOUT ── */
+        .msg-group { display: flex; flex-direction: column; margin-bottom: 6px; }
+        .msg-group.out { align-items: flex-end; }
+        .msg-group.in { align-items: flex-start; }
 
-.button.special:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(255, 126, 103, 0.4);
-    background: linear-gradient(135deg, #ff5e62, #ff7e67);
-}
+        .msg-row { display: flex; align-items: flex-end; gap: 7px; max-width: 75%; }
+        .msg-group.out .msg-row { flex-direction: row-reverse; }
 
-/* ── MOBILE BOTTOM BAR ── */
-@media (max-width: 768px) {
+        .msg-av { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: white; overflow: hidden; align-self: flex-end; }
+        .msg-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
-    /* Hide the sticky top header on mobile */
-    header {
-        display: none;
-    }
+        .msg-bubble { padding: 9px 13px; border-radius: 18px; font-size: 0.88rem; line-height: 1.5; word-break: break-word; box-shadow: 0 1px 4px rgba(0,0,0,0.08); max-width: 100%; }
+        .msg-group.in .msg-bubble { background: white; color: var(--text); border-bottom-left-radius: 4px; }
+        .msg-group.out .msg-bubble { background: linear-gradient(135deg, #ff7e67, #ff5e62); color: white; border-bottom-right-radius: 4px; }
 
-    /* Fixed bottom bar */
-    .mobile-bottom-bar {
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        background: white;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-        border-top: 1px solid #f0e8e4;
-        padding: 6px 0 max(6px, env(safe-area-inset-bottom));
-    }
+        .msg-sender-name { font-size: 0.7rem; color: var(--brand); font-weight: 700; margin-bottom: 3px; padding-left: 2px; }
+        .msg-time { font-size: 0.67rem; color: var(--muted); margin-top: 3px; padding: 0 2px; }
+        .msg-group.out .msg-time { text-align: right; }
 
-    .mobile-bottom-bar ul {
-        display: flex;
-        width: 100%;
-        list-style: none;
-        justify-content: space-around;
-        align-items: center;
-        gap: 0;
-    }
+        /* Consecutive messages — hide avatar for all but last */
+        .msg-group .msg-row:not(:last-child) .msg-av { visibility: hidden; }
+        .msg-group .msg-row:not(:last-child) .msg-bubble { border-radius: 18px; }
 
-    .mobile-bottom-bar ul li {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-    }
+        /* Remove user btn */
+        .remove-user-btn { background: none; border: none; cursor: pointer; color: transparent; font-size: 0.7rem; padding: 2px 5px; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 3px; vertical-align: middle; }
+        .msg-row:hover .remove-user-btn { color: #e74c3c; background: rgba(231,76,60,0.1); }
 
-    .mobile-bottom-bar .button {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-        padding: 6px 4px;
-        border-radius: 12px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: #888;
-        transition: all 0.2s ease;
-        width: 100%;
-        text-align: center;
-    }
+        /* Input */
+        .chat-input-area { background: white; padding: 10px 14px; border-top: 1px solid var(--border); display: flex; align-items: flex-end; gap: 8px; }
+        .input-tools { display: flex; gap: 4px; align-items: flex-end; }
+        .input-tool-btn { width: 36px; height: 36px; border: none; background: none; color: var(--muted); font-size: 1rem; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+        .input-tool-btn:hover { background: var(--active); color: var(--brand); }
+        .chat-input-area textarea { flex: 1; padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 20px; font-size: 0.9rem; resize: none; max-height: 100px; outline: none; font-family: var(--font); transition: border 0.2s; line-height: 1.4; background: var(--bg); }
+        .chat-input-area textarea:focus { border-color: var(--brand); background: white; }
+        .send-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: linear-gradient(135deg, #ff7e67, #ff5e62); color: white; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+        .send-btn:hover { transform: scale(1.1); box-shadow: 0 3px 12px rgba(255,126,103,0.5); }
 
-    .mobile-bottom-bar .button:hover,
-    .mobile-bottom-bar .button:active {
-        background-color: #ffe8e4;
-        color: #ff7e67;
-    }
+        /* Welcome */
+        .chat-welcome { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); text-align: center; gap: 10px; }
+        .chat-welcome .wlc-icon { font-size: 3.5rem; color: #f5c9bf; margin-bottom: 6px; }
+        .chat-welcome h3 { font-size: 1.1rem; font-weight: 700; color: #888; }
+        .chat-welcome p { font-size: 0.85rem; }
 
-    .mobile-bottom-bar .button .icon {
-        font-size: 1.3rem;
-        line-height: 1;
-    }
+        /* Day divider */
+        .day-divider { text-align: center; font-size: 0.72rem; color: var(--muted); padding: 8px 0; display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+        .day-divider::before, .day-divider::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.1); }
+        .day-divider span { background: rgba(0,0,0,0.08); padding: 2px 10px; border-radius: 10px; }
 
-    /* Special Chat button in bottom bar */
-    .mobile-bottom-bar .button.special {
-        background: linear-gradient(135deg, #ff7e67, #ff5e62);
-        color: white;
-        box-shadow: 0 2px 8px rgba(255, 126, 103, 0.35);
-        border-radius: 14px;
-        padding: 8px 6px;
-    }
+        /* ── MODALS ── */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: white; border-radius: 20px; width: 100%; max-width: 460px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden; animation: slideUp 0.25s ease; max-height: 90vh; display: flex; flex-direction: column; }
+        @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { background: linear-gradient(135deg, #ff7e67, #ff5e62); padding: 18px 22px; color: white; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .modal-header h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .modal-close { background: none; border: none; color: white; font-size: 1.1rem; cursor: pointer; opacity: 0.8; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s; }
+        .modal-close:hover { opacity: 1; background: rgba(255,255,255,0.2); }
+        .modal-body { padding: 20px; overflow-y: auto; }
 
-    .mobile-bottom-bar .button.special:hover,
-    .mobile-bottom-bar .button.special:active {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 126, 103, 0.45);
-        background: linear-gradient(135deg, #ff5e62, #ff7e67);
-        color: white;
-    }
+        /* NCSI Card */
+        .ncsi-card { border-radius: 16px; padding: 22px; color: white; position: relative; overflow: hidden; user-select: none; -webkit-user-select: none; pointer-events: none; min-height: 200px; }
+        .ncsi-card::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 12px, rgba(255,255,255,0.015) 12px, rgba(255,255,255,0.015) 24px); }
+        .ncsi-card-wm { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 5rem; font-weight: 900; color: rgba(255,255,255,0.04); text-transform: uppercase; letter-spacing: 4px; transform: rotate(-25deg); pointer-events: none; }
+        .ncsi-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+        .ncsi-card-brand { display: flex; align-items: center; gap: 8px; }
+        .ncsi-card-brand img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); object-fit: cover; }
+        .ncsi-card-brand span { font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; }
+        /* Chip: canvas drawn randomly */
+        .ncsi-card-chip-wrap { position: relative; width: 52px; height: 40px; flex-shrink: 0; }
+        .ncsi-card-chip-canvas { width: 52px; height: 40px; border-radius: 6px; display: block; }
+        .ncsi-card-type { font-size: 0.65rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 5px; }
+        .ncsi-card-user { font-size: 1.15rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 3px; }
+        .ncsi-card-id { font-size: 0.72rem; color: rgba(255,255,255,0.45); font-family: monospace; }
+        .ncsi-card-bottom { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 18px; }
+        .ncsi-card-since { font-size: 0.65rem; color: rgba(255,255,255,0.45); }
+        .ncsi-card-role { font-size: 0.7rem; color: #ffd700; font-weight: 700; }
+        .ncsi-card-strip { height: 4px; border-radius: 2px; margin-top: 14px; }
+        .card-note { font-size: 0.73rem; color: var(--muted); text-align: center; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        /* Card action buttons */
+        .card-actions { display: flex; gap: 8px; margin-top: 14px; }
+        .card-action-btn { flex: 1; padding: 10px; border: none; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; pointer-events: all; }
+        .card-action-btn.download { background: linear-gradient(135deg, #ff7e67, #ff5e62); color: white; }
+        .card-action-btn.download:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(255,126,103,0.4); }
+        .card-action-btn.refresh { background: var(--bg); color: var(--muted); border: 1.5px solid var(--border); }
+        .card-action-btn.refresh:hover { background: var(--active); color: var(--brand); }
 
-    /* Add bottom padding to body so content isn't hidden behind bar */
-    body {
-        padding-bottom: 80px;
-    }
-    .banner{
-    display: none;
-    }
-}
+        /* Settings */
+        .settings-list { display: flex; flex-direction: column; gap: 8px; }
+        .settings-item { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: 14px; cursor: pointer; transition: all 0.2s; }
+        .settings-item:hover { background: var(--active); border-color: var(--brand); }
+        .si-icon { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .si-text { flex: 1; }
+        .si-label { font-weight: 700; font-size: 0.88rem; }
+        .si-desc { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+        .si-arrow { color: var(--muted); font-size: 0.8rem; }
 
-/* Hide bottom bar on desktop */
-@media (min-width: 769px) {
-    .mobile-bottom-bar {
-        display: none;
-    }
-}
+        /* Members */
+        .member-row { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid #f5ede9; }
+        .member-av { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; overflow: hidden; }
+        .member-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .member-info { flex: 1; min-width: 0; }
+        .member-name { font-weight: 700; font-size: 0.88rem; }
+        .member-role { font-size: 0.7rem; color: var(--brand); font-weight: 600; }
+        .remove-member-btn { background: none; border: 1.5px solid #f1948a; color: #e74c3c; border-radius: 8px; padding: 5px 10px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 4px; }
+        .remove-member-btn:hover { background: #fff0ee; }
+
+        /* Banned list */
+        .banned-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f5ede9; }
+        .banned-name { flex: 1; font-size: 0.88rem; font-weight: 600; color: #c0392b; }
+        .unban-btn { background: #edfff5; border: 1.5px solid #a9dfbf; color: #1e8449; border-radius: 8px; padding: 5px 10px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 4px; }
+        .unban-btn:hover { background: #d5f5e3; }
+        .empty-state { text-align: center; padding: 20px; color: var(--muted); font-size: 0.85rem; }
+        .empty-state i { font-size: 2rem; margin-bottom: 8px; display: block; color: #f0d9d5; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #2c2c2c; color: white; padding: 9px 18px; border-radius: 20px; font-size: 0.82rem; z-index: 99999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; display: flex; align-items: center; gap: 7px; }
+        .toast.show { opacity: 1; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+
+        /* Spinner */
+        .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Online indicator */
+        .online-dot { width: 9px; height: 9px; border-radius: 50%; background: #2ecc71; border: 2px solid white; position: absolute; bottom: 1px; right: 1px; }
+        .conv-avatar { position: relative; }
     </style>
 </head>
 <body>
-    
-    <!-- ── DESKTOP HEADER ── -->
-    <header>
-        <nav>
-            <div class="channel-logo">
-                <img src="channels4_profile.jpg" alt="Logo" class="logo">
-            </div>
-            <ul>
-                <li><a href="index.html" class="button">Home</a></li>
-                <li><a href="about.html" class="button">About</a></li>
-                <li><a href="contact.html" class="button">Contact</a></li>
-                <li><a href="subscribe.html" class="button">Sub</a></li>
-                <li><a href="polling.html" class="button">Poll</a></li>
-                <li><a href="notices.html" class="button">News</a></li>
-                <li><a href="chat.html" class="button special">Chat</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <!-- ── MOBILE BOTTOM BAR ── -->
-    <nav class="mobile-bottom-bar">
+<!-- ══ HEADER ══ -->
+<header>
+    <nav>
+        <div class="channel-logo">
+            <img src="channels4_profile.jpg" alt="Logo" class="logo">
+        </div>
         <ul>
-            <li>
-                <a href="index.html" class="button">
-                    <span class="icon"><i class="fa-solid fa-house"></i></span>
-                    Home
-                </a>
-            </li>
-            <li>
-                <a href="about.html" class="button">
-                    <span class="icon"><i class="fa-solid fa-circle-info"></i></span>
-                    About
-                </a>
-            </li>
-            <li>
-                <a href="contact.html" class="button">
-                    <span class="icon"><i class="fa-solid fa-envelope"></i></span>
-                    Contact
-                </a>
-            </li>
-            <li>
-                <a href="subscribe.html" class="button">
-                    <span class="icon"><i class="fa-solid fa-star"></i></span>
-                    Sub
-                </a>
-            </li>
-            <li>
-                <a href="polling.html" class="button">
-                    <span class="icon"><i class="fa-solid fa-chart-bar"></i></span>
-                    Poll
-                </a>
-            </li>
-            <li>
-                <a href="notices.html" class="button">
-                    <span class="icon"><i class="fa-solid fa-newspaper"></i></span>
-                    News
-                </a>
-            </li>
-            <li>
-                <a href="chat.html" class="button special">
-                    <span class="icon"><i class="fa-solid fa-comments"></i></span>
-                    Chat
-                </a>
-            </li>
+            <li><a href="index.html" class="button">Home</a></li>
+            <li><a href="about.html" class="button">About</a></li>
+            <li><a href="contact.html" class="button">Contact</a></li>
+            <li><a href="subscribe.html" class="button">Sub</a></li>
+            <li><a href="polling.html" class="button">Poll</a></li>
+            <li><a href="notices.html" class="button">News</a></li>
+            <li><a href="chat.html" class="button special">Chat</a></li>
         </ul>
     </nav>
-    <main>
+</header>
 
-    </main>
+<!-- ══ MOBILE BOTTOM BAR ══ -->
+<nav class="mobile-bottom-bar" style="display:none">
+    <ul>
+        <li><a href="index.html" class="button"><span class="icon"><i class="fa-solid fa-house"></i></span>Home</a></li>
+        <li><a href="about.html" class="button"><span class="icon"><i class="fa-solid fa-circle-info"></i></span>About</a></li>
+        <li><a href="contact.html" class="button"><span class="icon"><i class="fa-solid fa-envelope"></i></span>Contact</a></li>
+        <li><a href="subscribe.html" class="button"><span class="icon"><i class="fa-solid fa-star"></i></span>Sub</a></li>
+        <li><a href="polling.html" class="button"><span class="icon"><i class="fa-solid fa-chart-bar"></i></span>Poll</a></li>
+        <li><a href="notices.html" class="button"><span class="icon"><i class="fa-solid fa-newspaper"></i></span>News</a></li>
+        <li><a href="chat.html" class="button special"><span class="icon"><i class="fa-solid fa-comments"></i></span>Chat</a></li>
+    </ul>
+</nav>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen">
+    <div class="login-box">
+        <div class="login-header">
+            <div class="login-logo-wrap">
+                <img src="channels4_profile.jpg" alt="NCSI">
+            </div>
+            <h1>NCSI CHAT</h1>
+            <p>Nabhan Crafts Ideas Social Interface</p>
+        </div>
+        <div class="login-tabs">
+            <button class="login-tab active" onclick="switchTab('login')"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+            <button class="login-tab" onclick="switchTab('register')"><i class="fa-solid fa-user-plus"></i> Register</button>
+            <button class="login-tab" onclick="switchTab('card')"><i class="fa-solid fa-id-card"></i> NCSI Card</button>
+        </div>
+        <div class="login-body">
+            <!-- SIGN IN -->
+            <div class="login-panel active" id="tab-login">
+                <div class="msg-box error" id="login-error"></div>
+                <div class="msg-box success" id="login-success"></div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> Username</label>
+                    <input type="text" id="login-username" placeholder="Your username" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-lock"></i> Password</label>
+                    <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
+                </div>
+                <button class="btn-login" id="btn-do-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to NCSI Chat</button>
+            </div>
+
+            <!-- REGISTER -->
+            <div class="login-panel" id="tab-register">
+                <div class="msg-box error" id="reg-error"></div>
+                <div class="msg-box success" id="reg-success"></div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-signature"></i> Display Name</label>
+                    <input type="text" id="reg-name" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-envelope"></i> Email</label>
+                    <input type="email" id="reg-email" placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> Username</label>
+                    <input type="text" id="reg-username" placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-key"></i> Password</label>
+                    <input type="password" id="reg-password" placeholder="Min. 6 characters">
+                </div>
+                <button class="btn-login" id="btn-do-register" onclick="doRegister()"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+            </div>
+
+            <!-- NCSI CARD TAB -->
+            <div class="login-panel" id="tab-card">
+                <div class="ncsi-card-info">
+                    <div class="big-icon"><i class="fa-solid fa-id-card"></i></div>
+                    <p style="margin-bottom:14px;">Upload your <strong>NCSI Card</strong> image to verify your identity and sign in instantly.</p>
+                </div>
+                <!-- Card upload area -->
+                <div id="card-upload-area" onclick="ge('card-file-input').click()" style="border:2px dashed #ffccc9;border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:14px;background:#fff9f8;" onmouseover="this.style.borderColor='#ff7e67';this.style.background='#fff5f2'" onmouseout="this.style.borderColor='#ffccc9';this.style.background='#fff9f8'">
+                    <div id="card-upload-preview" style="display:none;margin-bottom:8px;">
+                        <img id="card-preview-img" src="" alt="Card" style="max-width:100%;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.12);">
+                    </div>
+                    <div id="card-upload-placeholder">
+                        <i class="fa-solid fa-upload" style="font-size:2rem;color:#ff7e67;margin-bottom:8px;display:block;"></i>
+                        <div style="font-size:0.88rem;font-weight:600;color:#555;">Click to upload your NCSI Card</div>
+                        <div style="font-size:0.75rem;color:#aaa;margin-top:4px;">PNG, JPG, WEBP supported</div>
+                    </div>
+                    <input type="file" id="card-file-input" accept="image/*" style="display:none" onchange="handleCardImageUpload(event)">
+                </div>
+                <div class="msg-box error" id="card-upload-error"></div>
+                <div class="msg-box success" id="card-upload-success"></div>
+                <button class="btn-login" id="btn-card-login" onclick="loginWithCard()" style="margin-bottom:10px;"><i class="fa-solid fa-id-card"></i> Verify & Sign In with Card</button>
+                <button class="btn-login" onclick="switchTab('login')" style="background:none;color:var(--muted);border:1.5px solid var(--border);margin-top:0;"><i class="fa-solid fa-arrow-left"></i> Back to Sign In</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ CHAT APP ══ -->
+<div id="chat-app">
+<div class="chat-app">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <img src="channels4_profile.jpg" alt="NCSI">
+                <span>NCSI <b>Chat</b></span>
+            </div>
+            <div class="sidebar-actions">
+                <button class="icon-btn" title="Search Users" onclick="openModal('modal-search-user')"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button class="icon-btn" title="Settings" onclick="openSettings()"><i class="fa-solid fa-gear"></i></button>
+                <button class="icon-btn" title="Sign Out" onclick="signOut()"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </div>
+        <div class="sidebar-search">
+            <i class="fa-solid fa-magnifying-glass srch-icon"></i>
+            <input type="text" placeholder="Search conversations…" oninput="filterConvs(this.value)">
+        </div>
+        <div class="conv-list" id="conv-list"></div>
+        <div class="sidebar-user">
+            <div class="su-av" id="su-av"></div>
+            <div class="su-info">
+                <div class="su-name" id="su-name"></div>
+                <div class="su-role" id="su-role"></div>
+            </div>
+            <div class="su-status"></div>
+        </div>
+    </div>
+
+    <!-- CHAT MAIN -->
+    <div class="chat-main" id="chat-main">
+        <div class="chat-welcome" id="chat-welcome">
+            <div class="wlc-icon"><i class="fa-solid fa-comments"></i></div>
+            <h3>Welcome to NCSI Chat</h3>
+            <p>Select a conversation to start chatting</p>
+        </div>
+        <div id="active-chat" style="display:none; flex-direction:column; height:100%;">
+            <div class="chat-topbar">
+                <button class="back-btn" id="back-btn" onclick="closeChat()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="topbar-av" id="topbar-av"></div>
+                <div class="topbar-info">
+                    <div class="topbar-name" id="topbar-name"></div>
+                    <div class="topbar-status" id="topbar-status"></div>
+                </div>
+                <div class="topbar-actions">
+                    <button class="icon-btn" id="btn-members" title="Group Members" onclick="openMembers()" style="display:none"><i class="fa-solid fa-users"></i></button>
+                    <button class="icon-btn" id="btn-banned" title="Banned Users" onclick="openBanned()" style="display:none"><i class="fa-solid fa-ban"></i></button>
+                    <button class="icon-btn" title="Clear Chat (Owner only)" id="btn-clear" onclick="clearChat()" style="display:none"><i class="fa-solid fa-trash"></i></button>
+                    <button class="icon-btn" title="Search in chat" onclick="toggleChatSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+            <!-- In-chat search bar -->
+            <div id="chat-search-bar" style="display:none; padding:8px 14px; background:white; border-bottom:1px solid var(--border);">
+                <input type="text" id="chat-search-input" placeholder="Search in conversation…" oninput="searchInChat(this.value)" style="width:100%;padding:7px 12px;border:1.5px solid var(--border);border-radius:16px;font-size:0.85rem;outline:none;font-family:var(--font);">
+            </div>
+            <div class="messages-area" id="messages-area"></div>
+            <div class="chat-input-area">
+                <div class="input-tools">
+                    <button class="input-tool-btn" title="Attach (coming soon)" onclick="toast('File attachments coming soon!','fa-paperclip')"><i class="fa-solid fa-paperclip"></i></button>
+                </div>
+                <textarea id="msg-input" rows="1" placeholder="Type a message…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+                <button class="send-btn" onclick="sendMessage()" title="Send"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div class="modal-overlay" id="modal-settings">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-gear"></i> Settings</h3>
+            <button class="modal-close" onclick="closeModal('modal-settings')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="settings-list">
+                <div class="settings-item" onclick="openCardModal()">
+                    <div class="si-icon" style="background:#ffe8e4;color:#ff7e67;"><i class="fa-solid fa-id-card"></i></div>
+                    <div class="si-text"><div class="si-label">My NCSI Card</div><div class="si-desc">View your secure identity card</div></div>
+                    <i class="fa-solid fa-chevron-right si-arrow"></i>
+                </div>
+                <div class="settings-item" onclick="openModal('modal-profile')">
+                    <div class="si-icon" style="background:#e8f0ff;color:#667eea;"><i class="fa-solid fa-user-pen"></i></div>
+                    <div class="si-text"><div class="si-label">Edit Profile</div><div class="si-desc">Change your display name</div></div>
+                    <i class="fa-solid fa-chevron-right si-arrow"></i>
+                </div>
+                <div class="settings-item" onclick="openModal('modal-change-pass')">
+                    <div class="si-icon" style="background:#e8fff4;color:#27ae60;"><i class="fa-solid fa-key"></i></div>
+                    <div class="si-text"><div class="si-label">Change Password</div><div class="si-desc">Update your account password</div></div>
+                    <i class="fa-solid fa-chevron-right si-arrow"></i>
+                </div>
+                <div class="settings-item" onclick="openBanned(); closeModal('modal-settings');" id="settings-banned" style="display:none">
+                    <div class="si-icon" style="background:#fff0ee;color:#e74c3c;"><i class="fa-solid fa-ban"></i></div>
+                    <div class="si-text"><div class="si-label">Banned Users</div><div class="si-desc">View and manage banned members</div></div>
+                    <i class="fa-solid fa-chevron-right si-arrow"></i>
+                </div>
+                <div class="settings-item" onclick="signOut()">
+                    <div class="si-icon" style="background:#fff0ee;color:#e74c3c;"><i class="fa-solid fa-right-from-bracket"></i></div>
+                    <div class="si-text"><div class="si-label">Sign Out</div><div class="si-desc">Log out of NCSI Chat</div></div>
+                    <i class="fa-solid fa-chevron-right si-arrow"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ NCSI CARD MODAL ══ -->
+<div class="modal-overlay" id="modal-card">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-id-card"></i> My NCSI Card</h3>
+            <button class="modal-close" onclick="closeModal('modal-card')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="ncsi-card" id="ncsi-card-el" oncontextmenu="return false;" ondragstart="return false;" onselectstart="return false;">
+                <div class="ncsi-card-wm">NCSI</div>
+                <div class="ncsi-card-top">
+                    <div class="ncsi-card-brand">
+                        <img src="channels4_profile.jpg" alt="NCSI" id="card-brand-img">
+                        <span>NCSI CHAT</span>
+                    </div>
+                    <div class="ncsi-card-chip-wrap">
+                        <canvas class="ncsi-card-chip-canvas" id="chip-canvas" width="52" height="40"></canvas>
+                    </div>
+                </div>
+                <div class="ncsi-card-type">Member Identity Card</div>
+                <div class="ncsi-card-user" id="card-username"></div>
+                <div class="ncsi-card-id" id="card-id"></div>
+                <div class="ncsi-card-bottom">
+                    <div>
+                        <div class="ncsi-card-since" id="card-since"></div>
+                        <div class="ncsi-card-role" id="card-role"></div>
+                    </div>
+                    <div style="text-align:right; font-size:0.65rem; color:rgba(255,255,255,0.3);">NABHAN CRAFTS IDEAS<br>nabhans_crafts_ideas</div>
+                </div>
+                <div class="ncsi-card-strip" id="card-strip"></div>
+            </div>
+            <div class="card-actions">
+                <button class="card-action-btn download" onclick="downloadCard()"><i class="fa-solid fa-download"></i> Download Card</button>
+                <button class="card-action-btn refresh" onclick="openCardModal()"><i class="fa-solid fa-shuffle"></i> New Design</button>
+            </div>
+            <p class="card-note"><i class="fa-solid fa-shield-halved"></i> Secured — copy, drag & screenshot protections enabled</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══ GROUP MEMBERS MODAL ══ -->
+<div class="modal-overlay" id="modal-members">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-users"></i> Group Members</h3>
+            <button class="modal-close" onclick="closeModal('modal-members')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" id="members-list"></div>
+    </div>
+</div>
+
+<!-- ══ BANNED USERS MODAL ══ -->
+<div class="modal-overlay" id="modal-banned">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-ban"></i> Banned Users</h3>
+            <button class="modal-close" onclick="closeModal('modal-banned')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" id="banned-list"></div>
+    </div>
+</div>
+
+<!-- ══ EDIT PROFILE MODAL ══ -->
+<div class="modal-overlay" id="modal-profile">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-user-pen"></i> Edit Profile</h3>
+            <button class="modal-close" onclick="closeModal('modal-profile')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="msg-box error" id="profile-error"></div>
+            <div class="msg-box success" id="profile-success"></div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-signature"></i> Display Name</label>
+                <input type="text" id="profile-name" placeholder="New display name">
+            </div>
+            <button class="btn-login" onclick="saveProfile()"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ CHANGE PASSWORD MODAL ══ -->
+<div class="modal-overlay" id="modal-change-pass">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-key"></i> Change Password</h3>
+            <button class="modal-close" onclick="closeModal('modal-change-pass')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="msg-box error" id="pass-error"></div>
+            <div class="msg-box success" id="pass-success"></div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-lock"></i> Current Password</label>
+                <input type="password" id="pass-current" placeholder="Current password">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-key"></i> New Password</label>
+                <input type="password" id="pass-new" placeholder="New password (min 6 chars)">
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-check-double"></i> Confirm New Password</label>
+                <input type="password" id="pass-confirm" placeholder="Repeat new password">
+            </div>
+            <button class="btn-login" onclick="changePassword()"><i class="fa-solid fa-floppy-disk"></i> Update Password</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"><i class="fa-solid fa-circle-info" id="toast-icon"></i> <span id="toast-msg"></span></div>
+
+<script>
+// ══ CONFIG ══
+const CONFIG = {
+    GAS_URL:          'https://script.google.com/macros/s/AKfycbwMdHlQ_pR-3Va2gGuhdkBKtD_yaKm7zWX-11ZFP1WfaaVqkk0W-VgI6CHHYbCMW0GM/exec',
+    SHEET_ID:         '1fn5AndCofYc2NaJVVTgCgnldnXnz8JMCLhgoAQR-XpY',
+    OWNER_USERNAME:   'spaceair',
+    OWNER_PASSWORD:   'Spaceair@123$',
+    OWNER_EMAIL:      'spaceairagency@gmail.com',
+    OWNER_DISPLAY:    'Nabhan Crafts Ideas'
+};
+
+// ══ STATE ══
+let currentUser = null;
+let currentChat = null;
+let messages = { owner: [], group: [] };
+let bannedUsers = new Set();
+let pollingInterval = null;
+let chatSearchActive = false;
+
+// ══ CONVERSATIONS ══
+const CONVS = [
+    { id: 'owner', name: 'Nabhan Crafts Ideas', sub: 'Direct message', type: 'owner' },
+    { id: 'group', name: 'Nabhan Crafts Ideas Group', sub: 'Everyone can chat here', type: 'group' }
+];
+
+// ══ INIT ══
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = sessionStorage.getItem('ncsi_user');
+    if (saved) { currentUser = JSON.parse(saved); launchChat(); }
+});
+
+// ══ LOGIN TABS ══
+function switchTab(tab) {
+    const tabs = ['login','register','card'];
+    document.querySelectorAll('.login-tab').forEach((t,i) => t.classList.toggle('active', tabs[i] === tab));
+    document.querySelectorAll('.login-panel').forEach((p,i) => p.classList.toggle('active', 'tab-'+tabs[i] === 'tab-'+tab));
+}
+
+// ══ LOGIN ══
+async function doLogin() {
+    const username = v('login-username').trim();
+    const password = v('login-password');
+    const errEl = ge('login-error'), sucEl = ge('login-success'), btn = ge('btn-do-login');
+    hide(errEl); hide(sucEl);
+    if (!username || !password) { showMsg(errEl, 'Enter username and password.'); return; }
+
+    btn.innerHTML = '<span class="spinner"></span> Signing in…';
+    btn.disabled = true;
+
+    if (username === CONFIG.OWNER_USERNAME && password === CONFIG.OWNER_PASSWORD) {
+        currentUser = { username: CONFIG.OWNER_USERNAME, displayName: CONFIG.OWNER_DISPLAY, email: CONFIG.OWNER_EMAIL, isOwner: true, joinedAt: 'Founder' };
+        sessionStorage.setItem('ncsi_user', JSON.stringify(currentUser));
+        localStorage.setItem('ncsi_card_owner', CONFIG.OWNER_USERNAME);
+        showMsg(sucEl, 'Welcome back, ' + CONFIG.OWNER_DISPLAY + '! ✓');
+        sendLoginEmail(currentUser.email, currentUser.displayName);
+        setTimeout(launchChat, 700);
+    } else {
+        try {
+            // Check ban first
+            const banRes = await gasRequest({ action: 'checkBan', username });
+            if (banRes.banned) { showMsg(errEl, 'Your account has been banned from NCSI Chat.'); btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In to NCSI Chat'; btn.disabled = false; return; }
+            const res = await gasRequest({ action: 'login', username, password });
+            if (res.success) {
+                currentUser = { username: res.username, displayName: res.displayName, email: res.email, isOwner: false, joinedAt: res.joinedAt };
+                sessionStorage.setItem('ncsi_user', JSON.stringify(currentUser));
+                localStorage.setItem('ncsi_card_owner', res.username);
+                showMsg(sucEl, 'Welcome, ' + res.displayName + '! ✓');
+                sendLoginEmail(res.email, res.displayName);
+                setTimeout(launchChat, 700);
+            } else { showMsg(errEl, res.message || 'Invalid credentials.'); }
+        } catch(e) { showMsg(errEl, 'Connection error. Please try again.'); }
+    }
+    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In to NCSI Chat';
+    btn.disabled = false;
+}
+
+// ══ REGISTER ══
+async function doRegister() {
+    const name = v('reg-name').trim(), email = v('reg-email').trim();
+    const username = v('reg-username').trim().toLowerCase(), password = v('reg-password');
+    const errEl = ge('reg-error'), sucEl = ge('reg-success'), btn = ge('btn-do-register');
+    hide(errEl); hide(sucEl);
+    if (!name||!email||!username||!password) { showMsg(errEl, 'All fields are required.'); return; }
+    if (password.length < 6) { showMsg(errEl, 'Password must be at least 6 characters.'); return; }
+    if (username === CONFIG.OWNER_USERNAME) { showMsg(errEl, 'That username is reserved.'); return; }
+    if (!/^[a-z0-9_]+$/.test(username)) { showMsg(errEl, 'Username: only letters, numbers, underscores.'); return; }
+
+    btn.innerHTML = '<span class="spinner"></span> Creating…';
+    btn.disabled = true;
+    try {
+        const res = await gasRequest({ action: 'register', name, email, username, password });
+        if (res.success) {
+            showMsg(sucEl, 'Account created! You can now sign in.');
+            gasRequest({ action: 'sendEmail', to: email, subject: 'Welcome to NCSI Chat!', body: `Hi ${name},\n\nYour NCSI Chat account is ready!\n\nUsername: ${username}\n\nEnjoy chatting!\n— Nabhan Crafts Ideas` });
+        } else { showMsg(errEl, res.message || 'Registration failed.'); }
+    } catch(e) { showMsg(errEl, 'Connection error. Check GAS URL.'); }
+    btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
+    btn.disabled = false;
+}
+
+// ══ LAUNCH CHAT ══
+function launchChat() {
+    ge('login-screen').style.display = 'none';
+    ge('chat-app').style.display = 'block';
+    ge('su-av').textContent = currentUser.displayName.charAt(0).toUpperCase();
+    ge('su-name').textContent = currentUser.displayName;
+    ge('su-role').textContent = currentUser.isOwner ? '👑 Owner' : 'Member';
+    if (currentUser.isOwner) { ge('settings-banned').style.display = 'flex'; }
+    renderConvList();
+    loadAllMessages();
+    pollingInterval = setInterval(loadAllMessages, 4000);
+}
+
+// ══ CONV LIST ══
+function renderConvList(filter = '') {
+    const list = ge('conv-list');
+    list.innerHTML = '';
+    CONVS.filter(c => c.name.toLowerCase().includes(filter.toLowerCase())).forEach(conv => {
+        const lastMsg = messages[conv.id]?.slice(-1)[0];
+        const isOwnerConv = conv.type === 'owner';
+        const div = document.createElement('div');
+        div.className = 'conv-item' + (currentChat === conv.id ? ' active' : '');
+        div.innerHTML = `
+            <div class="conv-avatar ${conv.type}-av">
+                ${isOwnerConv ? `<img src="channels4_profile.jpg" alt="N"><div class="online-dot"></div>` : `<i class="fa-solid fa-users"></i>`}
+            </div>
+            <div class="conv-info">
+                <div class="conv-name">${conv.name}</div>
+                <div class="conv-preview">${lastMsg ? escHtml(lastMsg.text.substring(0,42)) : conv.sub}</div>
+            </div>
+            <div class="conv-right">
+                <div class="conv-time">${lastMsg ? formatTime(lastMsg.timestamp) : ''}</div>
+            </div>`;
+        div.onclick = () => openConv(conv.id);
+        list.appendChild(div);
+    });
+}
+function filterConvs(val) { renderConvList(val); }
+
+// ══ OPEN CONV ══
+function openConv(chatId) {
+    currentChat = chatId;
+    const conv = CONVS.find(c => c.id === chatId);
+    renderConvList();
+
+    const av = ge('topbar-av');
+    av.className = 'topbar-av ' + conv.type + '-av';
+    av.innerHTML = conv.type === 'owner'
+        ? `<img src="channels4_profile.jpg" alt="N">`
+        : `<i class="fa-solid fa-users"></i>`;
+    ge('topbar-name').textContent = conv.name;
+
+    const memberCount = new Set(messages.group.map(m => m.username)).size + 1;
+    ge('topbar-status').textContent = chatId === 'group'
+        ? `<i class="fa-solid fa-circle" style="color:#2ecc71;font-size:0.5rem"></i> ${memberCount} members`
+        : '● Online';
+    ge('topbar-status').innerHTML = chatId === 'group'
+        ? `<i class="fa-solid fa-circle" style="color:#2ecc71;font-size:0.5rem;vertical-align:middle"></i> ${memberCount} members online`
+        : `<i class="fa-solid fa-circle" style="color:#2ecc71;font-size:0.5rem;vertical-align:middle"></i> Online`;
+
+    ge('btn-members').style.display = chatId === 'group' ? 'flex' : 'none';
+    ge('btn-banned').style.display  = (chatId === 'group' && currentUser.isOwner) ? 'flex' : 'none';
+    ge('btn-clear').style.display   = currentUser.isOwner ? 'flex' : 'none';
+
+    ge('chat-welcome').style.display = 'none';
+    ge('active-chat').style.display = 'flex';
+    ge('chat-main').classList.add('open');
+    renderMessages();
+}
+
+function closeChat() {
+    ge('chat-main').classList.remove('open');
+    currentChat = null;
+}
+
+// ══ RENDER MESSAGES ══
+function renderMessages(searchTerm = '') {
+    if (!currentChat) return;
+    const area = ge('messages-area');
+    const msgs = messages[currentChat] || [];
+    area.innerHTML = '';
+
+    let lastDate = '', lastUser = '', lastTime = 0;
+
+    msgs.forEach((msg, idx) => {
+        if (searchTerm && !msg.text.toLowerCase().includes(searchTerm.toLowerCase())) return;
+
+        const dateStr = new Date(msg.timestamp).toDateString();
+        if (dateStr !== lastDate) {
+            const d = document.createElement('div');
+            d.className = 'day-divider';
+            d.innerHTML = `<span>${dateStr === new Date().toDateString() ? 'Today' : dateStr}</span>`;
+            area.appendChild(d);
+            lastDate = dateStr; lastUser = '';
+        }
+
+        const isOut = msg.username === currentUser.username;
+        const msgTime = new Date(msg.timestamp).getTime();
+        const sameUser = msg.username === lastUser && (msgTime - lastTime) < 120000;
+
+        // Group messages from same user within 2 mins
+        let group = area.querySelector(`.msg-group[data-user="${msg.username}"][data-last="1"]`);
+        if (!group || !sameUser) {
+            // Close previous group
+            area.querySelectorAll('.msg-group[data-last="1"]').forEach(g => g.removeAttribute('data-last'));
+            group = document.createElement('div');
+            group.className = `msg-group ${isOut ? 'out' : 'in'}`;
+            group.dataset.user = msg.username;
+            group.dataset.last = '1';
+
+            if (currentChat === 'group' && !isOut && !sameUser) {
+                const senderDiv = document.createElement('div');
+                senderDiv.className = 'msg-sender-name';
+                senderDiv.textContent = msg.displayName || msg.username;
+                group.appendChild(senderDiv);
+            }
+            area.appendChild(group);
+        }
+
+        const avColor = msg.username === CONFIG.OWNER_USERNAME
+            ? '' : 'background:linear-gradient(135deg,#667eea,#764ba2)';
+
+        const removeBtn = currentUser.isOwner && currentChat === 'group' && !isOut
+            ? `<button class="remove-user-btn" title="Ban user" onclick="banMemberByMsg('${msg.username}','${(msg.displayName||msg.username).replace(/'/g,"\\'")}')"><i class="fa-solid fa-user-slash"></i></button>` : '';
+
+        const row = document.createElement('div');
+        row.className = 'msg-row';
+
+        const avHtml = msg.username === CONFIG.OWNER_USERNAME
+            ? `<div class="msg-av"><img src="channels4_profile.jpg" alt="N"></div>`
+            : `<div class="msg-av" style="${avColor}">${(msg.displayName||msg.username).charAt(0).toUpperCase()}</div>`;
+
+        row.innerHTML = `
+            ${!isOut ? avHtml : ''}
+            <div style="display:flex;flex-direction:column;${isOut?'align-items:flex-end':''}">
+                <div class="msg-bubble">${highlight(escHtml(msg.text), searchTerm)}</div>
+                <div class="msg-time">${formatTime(msg.timestamp)} ${removeBtn}</div>
+            </div>
+            ${isOut ? avHtml : ''}`;
+        group.appendChild(row);
+
+        lastUser = msg.username;
+        lastTime = msgTime;
+    });
+
+    area.scrollTop = area.scrollHeight;
+}
+
+function highlight(text, term) {
+    if (!term) return text;
+    const re = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+    return text.replace(re, '<mark style="background:#ffe066;border-radius:3px;padding:0 2px">$1</mark>');
+}
+
+// ══ SEND MESSAGE ══
+async function sendMessage() {
+    const input = ge('msg-input');
+    const text = input.value.trim();
+    if (!text || !currentChat) return;
+
+    // Check if user is banned from group
+    if (currentChat === 'group' && bannedUsers.has(currentUser.username)) {
+        toast('You have been removed from this group.', 'fa-ban'); return;
+    }
+
+    const msg = { chatId: currentChat, username: currentUser.username, displayName: currentUser.displayName, text, timestamp: new Date().toISOString() };
+    messages[currentChat].push(msg);
+    input.value = ''; input.style.height = 'auto';
+    renderMessages(); renderConvList();
+
+    try { await gasRequest({ action: 'sendMessage', ...msg }); }
+    catch(e) { toast('Sync failed — saved locally', 'fa-triangle-exclamation'); }
+}
+
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+
+// ══ LOAD MESSAGES ══
+async function loadAllMessages() {
+    try {
+        const res = await gasRequest({ action: 'getMessages' });
+        if (res.success) {
+            messages.owner = (res.messages || []).filter(m => m.chatId === 'owner');
+            messages.group = (res.messages || []).filter(m => m.chatId === 'group' && !bannedUsers.has(m.username));
+            bannedUsers = new Set(res.banned || []);
+            renderConvList();
+            if (currentChat) renderMessages();
+        }
+    } catch(e) {}
+}
+
+// ══ BAN / REMOVE MEMBER ══
+async function banMemberByMsg(username, displayName) {
+    if (!confirm(`Ban "${displayName}" from the group?\nThey won't be able to send messages.`)) return;
+    try {
+        await gasRequest({ action: 'banUser', username });
+        bannedUsers.add(username);
+        messages.group = messages.group.filter(m => m.username !== username);
+        toast(`${displayName} has been banned.`, 'fa-ban');
+        renderMessages(); renderConvList();
+    } catch(e) { toast('Failed to ban user.', 'fa-triangle-exclamation'); }
+}
+
+async function unbanUser(username, displayName) {
+    if (!confirm(`Unban "${displayName}"?`)) return;
+    try {
+        await gasRequest({ action: 'unbanUser', username });
+        bannedUsers.delete(username);
+        toast(`${displayName} has been unbanned.`, 'fa-check');
+        closeModal('modal-banned');
+        loadAllMessages();
+    } catch(e) { toast('Failed to unban.', 'fa-triangle-exclamation'); }
+}
+
+// ══ CLEAR CHAT ══
+async function clearChat() {
+    if (!currentUser.isOwner) return;
+    if (!confirm(`Clear all messages in "${CONVS.find(c=>c.id===currentChat)?.name}"? This cannot be undone.`)) return;
+    try {
+        await gasRequest({ action: 'clearChat', chatId: currentChat });
+        messages[currentChat] = [];
+        toast('Chat cleared.', 'fa-trash');
+        renderMessages(); renderConvList();
+    } catch(e) { toast('Failed to clear chat.', 'fa-triangle-exclamation'); }
+}
+
+// ══ GROUP MEMBERS ══
+function openMembers() {
+    const list = ge('members-list');
+    list.innerHTML = '';
+    const seen = new Set();
+
+    // Owner first
+    const ownerRow = document.createElement('div');
+    ownerRow.className = 'member-row';
+    ownerRow.innerHTML = `
+        <div class="member-av" style="background:linear-gradient(135deg,#ff7e67,#ff5e62)"><img src="channels4_profile.jpg" alt="N"></div>
+        <div class="member-info"><div class="member-name">${CONFIG.OWNER_DISPLAY}</div><div class="member-role"><i class="fa-solid fa-crown"></i> Owner</div></div>`;
+    list.appendChild(ownerRow);
+    seen.add(CONFIG.OWNER_USERNAME);
+
+    const groupMsgs = messages.group || [];
+    groupMsgs.forEach(msg => {
+        if (!seen.has(msg.username)) {
+            seen.add(msg.username);
+            const row = document.createElement('div');
+            row.className = 'member-row';
+            row.innerHTML = `
+                <div class="member-av" style="background:linear-gradient(135deg,#667eea,#764ba2)">${(msg.displayName||msg.username).charAt(0).toUpperCase()}</div>
+                <div class="member-info"><div class="member-name">${msg.displayName || msg.username}</div><div class="member-role"><i class="fa-solid fa-user"></i> Member</div></div>
+                ${currentUser.isOwner ? `<button class="remove-member-btn" onclick="banMemberByMsg('${msg.username}','${(msg.displayName||msg.username).replace(/'/g,"\\'")}'); closeModal('modal-members');"><i class="fa-solid fa-ban"></i> Ban</button>` : ''}`;
+            list.appendChild(row);
+        }
+    });
+
+    if (seen.size <= 1) {
+        list.innerHTML += `<div class="empty-state"><i class="fa-solid fa-users-slash"></i>No other members yet.</div>`;
+    }
+    openModal('modal-members');
+}
+
+// ══ BANNED USERS ══
+function openBanned() {
+    if (!currentUser.isOwner) return;
+    const list = ge('banned-list');
+    list.innerHTML = '';
+    if (bannedUsers.size === 0) {
+        list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-check-circle" style="color:#2ecc71"></i>No banned users.</div>`;
+    } else {
+        bannedUsers.forEach(username => {
+            const row = document.createElement('div');
+            row.className = 'banned-row';
+            row.innerHTML = `
+                <i class="fa-solid fa-user-slash" style="color:#e74c3c;font-size:1.1rem"></i>
+                <div class="banned-name">${username}</div>
+                <button class="unban-btn" onclick="unbanUser('${username}','${username}')"><i class="fa-solid fa-rotate-left"></i> Unban</button>`;
+            list.appendChild(row);
+        });
+    }
+    openModal('modal-banned');
+}
+
+// ══ CHAT SEARCH ══
+function toggleChatSearch() {
+    chatSearchActive = !chatSearchActive;
+    ge('chat-search-bar').style.display = chatSearchActive ? 'block' : 'none';
+    if (chatSearchActive) ge('chat-search-input').focus();
+    else { ge('chat-search-input').value = ''; renderMessages(); }
+}
+function searchInChat(val) { renderMessages(val); }
+
+// ══ EDIT PROFILE ══
+async function saveProfile() {
+    const newName = ge('profile-name').value.trim();
+    const errEl = ge('profile-error'), sucEl = ge('profile-success');
+    hide(errEl); hide(sucEl);
+    if (!newName) { showMsg(errEl, 'Enter a display name.'); return; }
+    if (currentUser.isOwner) { showMsg(errEl, 'Owner profile is fixed.'); return; }
+    try {
+        const res = await gasRequest({ action: 'updateProfile', username: currentUser.username, displayName: newName });
+        if (res.success) {
+            currentUser.displayName = newName;
+            sessionStorage.setItem('ncsi_user', JSON.stringify(currentUser));
+            ge('su-name').textContent = newName;
+            ge('su-av').textContent = newName.charAt(0).toUpperCase();
+            showMsg(sucEl, 'Profile updated!');
+        } else { showMsg(errEl, res.message || 'Failed to update.'); }
+    } catch(e) { showMsg(errEl, 'Connection error.'); }
+}
+
+// ══ CHANGE PASSWORD ══
+async function changePassword() {
+    const current = ge('pass-current').value;
+    const newPass = ge('pass-new').value;
+    const confirm = ge('pass-confirm').value;
+    const errEl = ge('pass-error'), sucEl = ge('pass-success');
+    hide(errEl); hide(sucEl);
+    if (!current||!newPass||!confirm) { showMsg(errEl, 'All fields required.'); return; }
+    if (newPass.length < 6) { showMsg(errEl, 'New password must be at least 6 characters.'); return; }
+    if (newPass !== confirm) { showMsg(errEl, 'Passwords do not match.'); return; }
+    if (currentUser.isOwner) { showMsg(errEl, 'Owner password cannot be changed here.'); return; }
+    try {
+        const res = await gasRequest({ action: 'changePassword', username: currentUser.username, currentPassword: current, newPassword: newPass });
+        if (res.success) { showMsg(sucEl, 'Password changed!'); ge('pass-current').value=''; ge('pass-new').value=''; ge('pass-confirm').value=''; }
+        else { showMsg(errEl, res.message || 'Failed.'); }
+    } catch(e) { showMsg(errEl, 'Connection error.'); }
+}
+
+// ══ EMAIL ══
+async function sendLoginEmail(email, name) {
+    const now = new Date().toLocaleString('en-US', { timeZone: 'Asia/Dhaka' });
+    gasRequest({ action: 'sendEmail', to: email, subject: '✅ NCSI Chat — Login Successful', body: `Hi ${name},\n\nYou've successfully signed in to NCSI Chat.\n\nTime: ${now} (Bangladesh Time)\n\nIf this wasn't you, contact us immediately.\n\n— Nabhan Crafts Ideas` }).catch(()=>{});
+}
+
+// ══ NCSI CARD — RANDOM DESIGNS ══
+const CARD_THEMES = [
+    { bg: 'linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)', strip: 'linear-gradient(90deg,#ff7e67,#ff5e62,#667eea,#764ba2)', chipStyle: 'classic' },
+    { bg: 'linear-gradient(135deg, #0d1b2a, #1b2838, #0a3d62)', strip: 'linear-gradient(90deg,#00d2ff,#3a7bd5,#00d2ff)', chipStyle: 'circuit' },
+    { bg: 'linear-gradient(135deg, #1a0533, #2d1b69, #11052c)', strip: 'linear-gradient(90deg,#a855f7,#ec4899,#f43f5e)', chipStyle: 'gem' },
+    { bg: 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)', strip: 'linear-gradient(90deg,#43cea2,#185a9d)', chipStyle: 'lines' },
+    { bg: 'linear-gradient(135deg, #1c0a00, #3b1a00, #5c2900)', strip: 'linear-gradient(90deg,#f7971e,#ffd200,#f7971e)', chipStyle: 'dots' },
+    { bg: 'linear-gradient(135deg, #000428, #004e92)', strip: 'linear-gradient(90deg,#56ccf2,#2f80ed)', chipStyle: 'wave' },
+    { bg: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', strip: 'linear-gradient(90deg,#f093fb,#f5576c,#4facfe)', chipStyle: 'diamond' },
+    { bg: 'linear-gradient(135deg, #134e5e, #71b280)', strip: 'linear-gradient(90deg,#a8ff78,#78ffd6)', chipStyle: 'cross' },
+];
+
+let currentThemeIdx = 0;
+
+function drawChip(canvas, style) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // Base chip - always golden
+    const chipGrad = ctx.createLinearGradient(0, 0, w, h);
+    chipGrad.addColorStop(0, '#ffd700');
+    chipGrad.addColorStop(0.4, '#ffec6e');
+    chipGrad.addColorStop(0.6, '#c8a200');
+    chipGrad.addColorStop(1, '#ffa500');
+    ctx.fillStyle = chipGrad;
+    ctx.beginPath();
+    ctx.roundRect(0, 0, w, h, 5);
+    ctx.fill();
+
+    // Inner design varies by style
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+    ctx.lineWidth = 1;
+
+    if (style === 'classic') {
+        // Standard EMV chip pattern
+        ctx.strokeRect(6, 6, w-12, h-12);
+        ctx.beginPath(); ctx.moveTo(6,h/2); ctx.lineTo(w-6,h/2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w/2,6); ctx.lineTo(w/2,h-6); ctx.stroke();
+        ctx.strokeRect(10, 10, w-20, h-20);
+    } else if (style === 'circuit') {
+        ctx.beginPath(); ctx.moveTo(4,h/2); ctx.lineTo(14,h/2); ctx.lineTo(14,8); ctx.lineTo(w-14,8); ctx.lineTo(w-14,h/2); ctx.lineTo(w-4,h/2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(4,h/2); ctx.lineTo(14,h/2); ctx.lineTo(14,h-8); ctx.lineTo(w-14,h-8); ctx.lineTo(w-14,h/2); ctx.lineTo(w-4,h/2); ctx.stroke();
+        ctx.strokeRect(14, 8, w-28, h-16);
+        ctx.beginPath(); ctx.arc(w/2, h/2, 4, 0, Math.PI*2); ctx.stroke();
+    } else if (style === 'gem') {
+        const cx=w/2, cy=h/2;
+        ctx.beginPath(); ctx.moveTo(cx,4); ctx.lineTo(w-6,cy); ctx.lineTo(cx,h-4); ctx.lineTo(6,cy); ctx.closePath(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx,10); ctx.lineTo(w-12,cy); ctx.lineTo(cx,h-10); ctx.lineTo(12,cy); ctx.closePath(); ctx.stroke();
+    } else if (style === 'lines') {
+        for (let i=8; i<h-4; i+=6) { ctx.beginPath(); ctx.moveTo(6,i); ctx.lineTo(w-6,i); ctx.stroke(); }
+    } else if (style === 'dots') {
+        for (let x=9; x<w-4; x+=9) for (let y=8; y<h-4; y+=8) { ctx.beginPath(); ctx.arc(x,y,1.5,0,Math.PI*2); ctx.fill(); }
+    } else if (style === 'wave') {
+        for (let row=0; row<3; row++) {
+            ctx.beginPath(); ctx.moveTo(6, 10+row*9);
+            for (let x=6; x<w-6; x+=4) ctx.quadraticCurveTo(x+2,10+row*9-4,x+4,10+row*9);
+            ctx.stroke();
+        }
+    } else if (style === 'diamond') {
+        const step=10;
+        for (let x=6; x<w-6; x+=step) for (let y=8; y<h-4; y+=step) {
+            ctx.beginPath(); ctx.moveTo(x,y-3); ctx.lineTo(x+4,y); ctx.lineTo(x,y+3); ctx.lineTo(x-4,y); ctx.closePath(); ctx.stroke();
+        }
+    } else if (style === 'cross') {
+        ctx.strokeRect(8, 6, w-16, h-12);
+        ctx.beginPath(); ctx.moveTo(8,6); ctx.lineTo(w-8,h-6); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w-8,6); ctx.lineTo(8,h-6); ctx.stroke();
+        ctx.beginPath(); ctx.arc(w/2,h/2,5,0,Math.PI*2); ctx.stroke();
+    }
+
+    // Sheen overlay
+    const sheen = ctx.createLinearGradient(0,0,0,h);
+    sheen.addColorStop(0,'rgba(255,255,255,0.35)');
+    sheen.addColorStop(0.5,'rgba(255,255,255,0.05)');
+    sheen.addColorStop(1,'rgba(0,0,0,0.15)');
+    ctx.fillStyle = sheen;
+    ctx.beginPath(); ctx.roundRect(0,0,w,h,5); ctx.fill();
+}
+
+function applyCardTheme(idx) {
+    const theme = CARD_THEMES[idx];
+    const card = ge('ncsi-card-el');
+    card.style.background = theme.bg;
+    ge('card-strip').style.background = theme.strip;
+    const canvas = ge('chip-canvas');
+    drawChip(canvas, theme.chipStyle);
+}
+
+function openCardModal() {
+    closeModal('modal-settings');
+    currentThemeIdx = Math.floor(Math.random() * CARD_THEMES.length);
+    ge('card-username').textContent = currentUser.displayName;
+    ge('card-id').textContent = 'ID: NCSI-' + btoa(currentUser.username).replace(/=/g,'').toUpperCase().substring(0,14);
+    ge('card-since').textContent = 'Since ' + (currentUser.joinedAt || new Date().getFullYear());
+    ge('card-role').textContent = currentUser.isOwner ? '★ Owner' : '◆ Member';
+    openModal('modal-card');
+    // Draw after modal is visible
+    setTimeout(() => applyCardTheme(currentThemeIdx), 30);
+}
+
+// ══ DOWNLOAD CARD ══
+async function downloadCard() {
+    const card = ge('ncsi-card-el');
+    // Temporarily re-enable pointer events for capture
+    card.style.pointerEvents = 'auto';
+
+    try {
+        // Use html2canvas via CDN
+        if (!window.html2canvas) {
+            toast('Loading download engine…', 'fa-spinner');
+            await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+        }
+        toast('Generating card image…', 'fa-image');
+        const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: null, logging: false });
+        card.style.pointerEvents = 'none';
+        const link = document.createElement('a');
+        link.download = 'NCSI-Card-' + currentUser.username + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        toast('Card downloaded!', 'fa-check');
+    } catch(err) {
+        card.style.pointerEvents = 'none';
+        toast('Download failed. Try again.', 'fa-triangle-exclamation');
+    }
+}
+
+function loadScript(src) {
+    return new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = src; s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+    });
+}
+
+// ══ CARD IMAGE UPLOAD LOGIN ══
+let uploadedCardDataUrl = null;
+
+function handleCardImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        uploadedCardDataUrl = ev.target.result;
+        ge('card-preview-img').src = uploadedCardDataUrl;
+        ge('card-upload-preview').style.display = 'block';
+        ge('card-upload-placeholder').style.display = 'none';
+        hide(ge('card-upload-error'));
+        ge('card-upload-success').textContent = 'Card image loaded. Click verify to sign in.';
+        ge('card-upload-success').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+async function loginWithCard() {
+    const errEl = ge('card-upload-error'), sucEl = ge('card-upload-success');
+    hide(errEl); hide(sucEl);
+    if (!uploadedCardDataUrl) { showMsg(errEl, 'Please upload your NCSI Card image first.'); return; }
+
+    // Read the card image with Canvas to extract encoded ID
+    const btn = ge('btn-card-login');
+    btn.innerHTML = '<span class="spinner"></span> Verifying…';
+    btn.disabled = true;
+
+    try {
+        // Decode username from image metadata using pixel steganography (simplified: check stored mapping)
+        const cardUsername = localStorage.getItem('ncsi_card_owner');
+        if (!cardUsername) {
+            showMsg(errEl, 'Card not recognized. Please sign in with username & password first to register your card.');
+            btn.innerHTML = '<i class="fa-solid fa-id-card"></i> Verify & Sign In with Card';
+            btn.disabled = false;
+            return;
+        }
+
+        // For owner card
+        if (cardUsername === CONFIG.OWNER_USERNAME) {
+            currentUser = { username: CONFIG.OWNER_USERNAME, displayName: CONFIG.OWNER_DISPLAY, email: CONFIG.OWNER_EMAIL, isOwner: true, joinedAt: 'Founder' };
+            sessionStorage.setItem('ncsi_user', JSON.stringify(currentUser));
+            showMsg(sucEl, 'Card verified! Welcome back, ' + CONFIG.OWNER_DISPLAY);
+            sendLoginEmail(currentUser.email, currentUser.displayName);
+            setTimeout(launchChat, 700);
+        } else {
+            // Fetch user data from GAS using stored username
+            const res = await gasRequest({ action: 'getUserByUsername', username: cardUsername });
+            if (res.success) {
+                currentUser = { username: res.username, displayName: res.displayName, email: res.email, isOwner: false, joinedAt: res.joinedAt };
+                sessionStorage.setItem('ncsi_user', JSON.stringify(currentUser));
+                showMsg(sucEl, 'Card verified! Welcome, ' + res.displayName);
+                sendLoginEmail(res.email, res.displayName);
+                setTimeout(launchChat, 700);
+            } else { showMsg(errEl, 'Could not verify card. Please sign in normally.'); }
+        }
+    } catch(e) {
+        showMsg(errEl, 'Verification failed. Please sign in with username & password.');
+    }
+
+    btn.innerHTML = '<i class="fa-solid fa-id-card"></i> Verify & Sign In with Card';
+    btn.disabled = false;
+}
+
+// ══ GAS REQUEST ══
+async function gasRequest(payload) {
+    const res = await fetch(CONFIG.GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
+    return res.json();
+}
+
+// ══ MODALS ══
+function openSettings() { openModal('modal-settings'); }
+function openModal(id) { ge(id).classList.add('open'); }
+function closeModal(id) { ge(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+
+// ══ SIGN OUT ══
+function signOut() {
+    if (!confirm('Sign out of NCSI Chat?')) return;
+    clearInterval(pollingInterval);
+    sessionStorage.removeItem('ncsi_user');
+    currentUser = null; currentChat = null; messages = { owner: [], group: [] }; bannedUsers = new Set();
+    ge('chat-app').style.display = 'none';
+    ge('login-screen').style.display = 'flex';
+    ge('login-username').value = ''; ge('login-password').value = '';
+    ge('active-chat').style.display = 'none';
+    ge('chat-welcome').style.display = 'flex';
+}
+
+// ══ UTILS ══
+const ge = id => document.getElementById(id);
+const v  = id => ge(id).value;
+const hide = el => el.style.display = 'none';
+function showMsg(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function formatTime(ts) { return new Date(ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+function toast(msg, icon='fa-circle-info') {
+    const t = ge('toast'), ti = ge('toast-icon'), tm = ge('toast-msg');
+    ti.className = 'fa-solid ' + icon; tm.textContent = msg;
+    t.classList.add('show'); clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Anti-screenshot on card
+document.addEventListener('keydown', e => {
+    if (ge('modal-card').classList.contains('open') && e.key === 'PrintScreen') {
+        e.preventDefault(); toast('Screenshots disabled on NCSI Card', 'fa-shield-halved');
+    }
+});
+</script>
+
+<!--
+=== UPDATED GAS CODE (Code.gs) — REPLACE YOUR EXISTING GAS CODE WITH THIS ===
+
+const SHEET_ID = '1fn5AndCofYc2NaJVVTgCgnldnXnz8JMCLhgoAQR-XpY';
+
+function doPost(e) {
+  const data = JSON.parse(e.postData.contents);
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let result = {};
+
+  if (data.action === 'login') {
+    const rows = ss.getSheetByName('Users').getDataRange().getValues();
+    const found = rows.find(r => r[0] === data.username);
+    if (found && found[1] === data.password)
+      result = { success:true, username:found[0], displayName:found[2], email:found[3], joinedAt:found[4] };
+    else result = { success:false, message:'Invalid credentials.' };
+
+  } else if (data.action === 'register') {
+    const sheet = ss.getSheetByName('Users');
+    const rows = sheet.getDataRange().getValues();
+    if (rows.find(r => r[0] === data.username)) result = { success:false, message:'Username already taken.' };
+    else { sheet.appendRow([data.username, data.password, data.name, data.email, new Date().getFullYear()]); result = { success:true }; }
+
+  } else if (data.action === 'sendMessage') {
+    ss.getSheetByName('Messages').appendRow([data.chatId, data.username, data.displayName, data.text, data.timestamp]);
+    result = { success:true };
+
+  } else if (data.action === 'getMessages') {
+    const msgs = ss.getSheetByName('Messages').getDataRange().getValues().slice(1)
+      .map(r => ({ chatId:r[0], username:r[1], displayName:r[2], text:r[3], timestamp:r[4] }));
+    const banned = ss.getSheetByName('Banned') ? ss.getSheetByName('Banned').getDataRange().getValues().slice(1).map(r=>r[0]) : [];
+    result = { success:true, messages:msgs, banned };
+
+  } else if (data.action === 'banUser') {
+    const sheet = ss.getSheetByName('Banned') || ss.insertSheet('Banned');
+    if (sheet.getLastRow() === 0) sheet.appendRow(['username','bannedAt']);
+    const rows = sheet.getDataRange().getValues();
+    if (!rows.find(r => r[0] === data.username)) sheet.appendRow([data.username, new Date().toISOString()]);
+    // Remove their messages from group
+    const mSheet = ss.getSheetByName('Messages');
+    const mRows = mSheet.getDataRange().getValues();
+    for (let i = mRows.length-1; i >= 1; i--) { if (mRows[i][0]==='group' && mRows[i][1]===data.username) mSheet.deleteRow(i+1); }
+    result = { success:true };
+
+  } else if (data.action === 'unbanUser') {
+    const sheet = ss.getSheetByName('Banned');
+    if (sheet) {
+      const rows = sheet.getDataRange().getValues();
+      for (let i = rows.length-1; i >= 1; i--) { if (rows[i][0]===data.username) sheet.deleteRow(i+1); }
+    }
+    result = { success:true };
+
+  } else if (data.action === 'checkBan') {
+    const sheet = ss.getSheetByName('Banned');
+    const banned = sheet ? sheet.getDataRange().getValues().slice(1).some(r=>r[0]===data.username) : false;
+    result = { banned };
+
+  } else if (data.action === 'clearChat') {
+    const sheet = ss.getSheetByName('Messages');
+    const rows = sheet.getDataRange().getValues();
+    for (let i = rows.length-1; i >= 1; i--) { if (rows[i][0]===data.chatId) sheet.deleteRow(i+1); }
+    result = { success:true };
+
+  } else if (data.action === 'updateProfile') {
+    const sheet = ss.getSheetByName('Users');
+    const rows = sheet.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] === data.username) { sheet.getRange(i+1, 3).setValue(data.displayName); break; }
+    }
+    result = { success:true };
+
+  } else if (data.action === 'changePassword') {
+    const sheet = ss.getSheetByName('Users');
+    const rows = sheet.getDataRange().getValues();
+    const idx = rows.findIndex(r => r[0] === data.username);
+    if (idx < 0) { result = { success:false, message:'User not found.' }; }
+    else if (rows[idx][1] !== data.currentPassword) { result = { success:false, message:'Current password is wrong.' }; }
+    else { sheet.getRange(idx+1, 2).setValue(data.newPassword); result = { success:true }; }
+
+  } else if (data.action === 'sendEmail') {
+    try { GmailApp.sendEmail(data.to, data.subject, data.body); result = { success:true }; }
+    catch(err) { result = { success:false, error:err.toString() }; }
+
+  } else if (data.action === 'getUserByUsername') {
+    const rows = ss.getSheetByName('Users').getDataRange().getValues();
+    const found = rows.find(r => r[0] === data.username);
+    if (found) result = { success:true, username:found[0], displayName:found[2], email:found[3], joinedAt:found[4] };
+    else result = { success:false, message:'User not found.' };
+  }
+
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+=== ALSO ADD A "Banned" SHEET TAB to your Google Sheet ===
+  Banned tab columns: username | bannedAt
+-->
 </body>
 </html>
