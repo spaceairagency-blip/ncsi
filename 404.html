@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Document</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #fdf6f0;
+    color: #333;
+}
+
+/* ── DESKTOP HEADER ── */
+header {
+    background: white;
+    padding: 1rem 5%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo */
+.channel-logo .logo {
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    border: 3px solid #ff7e67;
+    transition: transform 0.3s ease;
+}
+
+.channel-logo .logo:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Navigation List */
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Button Styling */
+.button {
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.button:hover {
+    background-color: #ffe8e4;
+    color: #ff7e67;
+}
+.here {
+    color: white;
+    background-color: rgb(149, 147, 147);
+}
+
+/* Special Chat Button */
+.button.special {
+    background: linear-gradient(135deg, #ff7e67, #ff5e62);
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 126, 103, 0.3);
+}
+
+.button.special:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 126, 103, 0.4);
+    background: linear-gradient(135deg, #ff5e62, #ff7e67);
+}
+
+/* ── MOBILE BOTTOM BAR ── */
+@media (max-width: 768px) {
+
+    /* Hide the sticky top header on mobile */
+    header {
+        display: none;
+    }
+
+    /* Fixed bottom bar */
+    .mobile-bottom-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: white;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+        border-top: 1px solid #f0e8e4;
+        padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+    }
+
+    .mobile-bottom-bar ul {
+        display: flex;
+        width: 100%;
+        list-style: none;
+        justify-content: space-around;
+        align-items: center;
+        gap: 0;
+    }
+
+    .mobile-bottom-bar ul li {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .mobile-bottom-bar .button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        padding: 6px 4px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #888;
+        transition: all 0.2s ease;
+        width: 100%;
+        text-align: center;
+    }
+
+    .mobile-bottom-bar .button:hover,
+    .mobile-bottom-bar .button:active {
+        background-color: #ffe8e4;
+        color: #ff7e67;
+    }
+
+    .mobile-bottom-bar .button .icon {
+        font-size: 1.3rem;
+        line-height: 1;
+    }
+
+    /* Special Chat button in bottom bar */
+    .mobile-bottom-bar .button.special {
+        background: linear-gradient(135deg, #ff7e67, #ff5e62);
+        color: white;
+        box-shadow: 0 2px 8px rgba(255, 126, 103, 0.35);
+        border-radius: 14px;
+        padding: 8px 6px;
+    }
+
+    .mobile-bottom-bar .button.special:hover,
+    .mobile-bottom-bar .button.special:active {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 126, 103, 0.45);
+        background: linear-gradient(135deg, #ff5e62, #ff7e67);
+        color: white;
+    }
+
+    /* Add bottom padding to body so content isn't hidden behind bar */
+    body {
+        padding-bottom: 80px;
+    }
+    .banner{
+    display: none;
+    }
+}
+
+/* Hide bottom bar on desktop */
+@media (min-width: 769px) {
+    .mobile-bottom-bar {
+        display: none;
+    }
+}
+.error-area {
+    text-align: center;
+    padding: 100px 20px;
+}
+.error-area h1 {
+    font-size: 6rem;
+    color: #ff7e67;
+}
+.error-area p {   
+    font-size: 1.5rem;
+    color: #555;
+    margin: 20px 0;
+}
+.error-area .button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff7e67;
+    color: white;
+    border-radius: 30px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+.error-area .button:hover {
+    background-color: #ff5e62;
+}
+
+    </style>
+</head>
+<body>
+    
+    <!-- ── DESKTOP HEADER ── -->
+    <header>
+        <nav>
+            <div class="channel-logo">
+                <img src="channels4_profile.jpg" alt="Logo" class="logo">
+            </div>
+            <ul>
+                <li><a href="home.html" class="button">Home</a></li>
+                <li><a href="about.html" class="button">About</a></li>
+                <li><a href="contact.html" class="button">Contact</a></li>
+                <li><a href="subscribe.html" class="button">Sub</a></li>
+                <li><a href="polling.html" class="button">Poll</a></li>
+                <li><a href="notices.html" class="button">News</a></li>
+                <li><a href="chat.html" class="button special">Chat</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- ── MOBILE BOTTOM BAR ── -->
+    <nav class="mobile-bottom-bar">
+        <ul>
+            <li>
+                <a href="home.html" class="button">
+                    <span class="icon"><i class="fa-solid fa-house"></i></span>
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="about.html" class="button">
+                    <span class="icon"><i class="fa-solid fa-circle-info"></i></span>
+                    About
+                </a>
+            </li>
+            <li>
+                <a href="contact.html" class="button">
+                    <span class="icon"><i class="fa-solid fa-envelope"></i></span>
+                    Contact
+                </a>
+            </li>
+            <li>
+                <a href="subscribe.html" class="button">
+                    <span class="icon"><i class="fa-solid fa-star"></i></span>
+                    Sub
+                </a>
+            </li>
+            <li>
+                <a href="polling.html" class="button">
+                    <span class="icon"><i class="fa-solid fa-chart-bar"></i></span>
+                    Poll
+                </a>
+            </li>
+            <li>
+                <a href="notices.html" class="button">
+                    <span class="icon"><i class="fa-solid fa-newspaper"></i></span>
+                    News
+                </a>
+            </li>
+            <li>
+                <a href="chat.html" class="button special">
+                    <span class="icon"><i class="fa-solid fa-comments"></i></span>
+                    Chat
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <main>
+        <div class="error-area">
+            <h1>404</h1>
+            <p>Page Not Found</p>
+            <a href="index.html" class="button">Go Home</a>
+        </div>
+    </main>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
+</html>
