@@ -1,11 +1,11 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <title>NCSI Chat - Nabhan Crafts Ideas</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -73,8 +73,8 @@
         .login-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
         .login-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; }
         .login-header p { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
-        .login-tabs { display: flex; border-bottom: 2px solid #f0e8e4; }
-        .login-tab { flex: 1; padding: 13px 8px; text-align: center; font-weight: 600; font-size: 0.82rem; color: var(--muted); cursor: pointer; transition: all 0.2s; border: none; background: none; }
+        .login-tabs { display: flex; border-bottom: 2px solid #f0e8e4; overflow-x: auto; }
+        .login-tab { flex: 1; padding: 13px 8px; text-align: center; font-weight: 600; font-size: 0.82rem; color: var(--muted); cursor: pointer; transition: all 0.2s; border: none; background: none; white-space: nowrap; }
         .login-tab.active { color: var(--brand); border-bottom: 2px solid var(--brand); margin-bottom: -2px; }
         .login-body { padding: 24px; }
         .login-panel { display: none; }
@@ -90,6 +90,58 @@
         .msg-box.success { background: #edfff5; border: 1px solid #b2f0cb; color: #1e8449; }
         .ncsi-card-info { text-align: center; padding: 16px 10px; color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
         .ncsi-card-info .big-icon { font-size: 2.8rem; color: var(--brand); margin-bottom: 12px; }
+
+        /* ── GOOGLE LOGIN STYLES ── */
+        .google-divider {
+            display: flex; align-items: center; gap: 10px;
+            margin: 16px 0; color: var(--muted); font-size: 0.8rem; font-weight: 600;
+        }
+        .google-divider::before, .google-divider::after {
+            content: ''; flex: 1; height: 1px; background: #f0e8e4;
+        }
+        .btn-google {
+            width: 100%; padding: 12px 16px; border: 2px solid #e8e8e8; border-radius: 14px;
+            background: white; color: #444; font-weight: 700; font-size: 0.92rem;
+            cursor: pointer; transition: all 0.25s; display: flex; align-items: center;
+            justify-content: center; gap: 10px; font-family: var(--font);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .btn-google:hover {
+            border-color: #4285F4; background: #f8f9ff;
+            box-shadow: 0 4px 16px rgba(66,133,244,0.18);
+            transform: translateY(-1px);
+        }
+        .btn-google .g-icon {
+            width: 20px; height: 20px; flex-shrink: 0;
+        }
+        .google-user-info {
+            background: linear-gradient(135deg, #f0f7ff, #e8f4ff);
+            border: 1.5px solid #c8e0ff;
+            border-radius: 14px; padding: 14px 16px;
+            display: none; align-items: center; gap: 12px; margin-bottom: 14px;
+        }
+        .google-user-info.show { display: flex; }
+        .google-user-avatar {
+            width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+            border: 2px solid #4285F4; flex-shrink: 0;
+        }
+        .google-user-avatar-fallback {
+            width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #4285F4, #34a853);
+            display: flex; align-items: center; justify-content: center; color: white;
+            font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .google-user-details { flex: 1; min-width: 0; }
+        .google-user-name { font-weight: 700; font-size: 0.92rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .google-user-email { font-size: 0.75rem; color: #4285F4; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-google-signin {
+            width: 100%; padding: 13px; border: none; border-radius: 14px;
+            background: linear-gradient(135deg, #4285F4, #1a73e8);
+            color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+            transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-family: var(--font); margin-top: 4px;
+        }
+        .btn-google-signin:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(66,133,244,0.4); }
+        .btn-google-switch { background: none; border: none; color: #4285F4; font-size: 0.8rem; cursor: pointer; text-decoration: underline; text-align: center; width: 100%; margin-top: 8px; font-family: var(--font); }
 
         /* ══ CHAT APP ══ */
         #chat-app { display: none; }
@@ -126,7 +178,8 @@
 
         /* Sidebar bottom user */
         .sidebar-user { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: #fdf9f7; }
-        .sidebar-user .su-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #ff7e67, #ff5e62); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.82rem; flex-shrink: 0; }
+        .sidebar-user .su-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #ff7e67, #ff5e62); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.82rem; flex-shrink: 0; overflow: hidden; }
+        .sidebar-user .su-av img { width: 100%; height: 100%; object-fit: cover; }
         .sidebar-user .su-info { flex: 1; min-width: 0; }
         .sidebar-user .su-name { font-weight: 700; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .sidebar-user .su-role { font-size: 0.7rem; color: var(--brand); font-weight: 600; }
@@ -148,30 +201,22 @@
         /* Messages */
         .messages-area { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 4px; }
 
-        /* ── FIXED MESSAGE LAYOUT ── */
+        /* ── MESSAGE LAYOUT ── */
         .msg-group { display: flex; flex-direction: column; margin-bottom: 6px; }
         .msg-group.out { align-items: flex-end; }
         .msg-group.in { align-items: flex-start; }
-
         .msg-row { display: flex; align-items: flex-end; gap: 7px; max-width: 75%; }
         .msg-group.out .msg-row { flex-direction: row-reverse; }
-
         .msg-av { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: white; overflow: hidden; align-self: flex-end; }
         .msg-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-
         .msg-bubble { padding: 9px 13px; border-radius: 18px; font-size: 0.88rem; line-height: 1.5; word-break: break-word; box-shadow: 0 1px 4px rgba(0,0,0,0.08); max-width: 100%; }
         .msg-group.in .msg-bubble { background: white; color: var(--text); border-bottom-left-radius: 4px; }
         .msg-group.out .msg-bubble { background: linear-gradient(135deg, #ff7e67, #ff5e62); color: white; border-bottom-right-radius: 4px; }
-
         .msg-sender-name { font-size: 0.7rem; color: var(--brand); font-weight: 700; margin-bottom: 3px; padding-left: 2px; }
         .msg-time { font-size: 0.67rem; color: var(--muted); margin-top: 3px; padding: 0 2px; }
         .msg-group.out .msg-time { text-align: right; }
-
-        /* Consecutive messages — hide avatar for all but last */
         .msg-group .msg-row:not(:last-child) .msg-av { visibility: hidden; }
         .msg-group .msg-row:not(:last-child) .msg-bubble { border-radius: 18px; }
-
-        /* Remove user btn */
         .remove-user-btn { background: none; border: none; cursor: pointer; color: transparent; font-size: 0.7rem; padding: 2px 5px; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 3px; vertical-align: middle; }
         .msg-row:hover .remove-user-btn { color: #e74c3c; background: rgba(231,76,60,0.1); }
 
@@ -215,7 +260,6 @@
         .ncsi-card-brand { display: flex; align-items: center; gap: 8px; }
         .ncsi-card-brand img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); object-fit: cover; }
         .ncsi-card-brand span { font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; }
-        /* Chip: canvas drawn randomly */
         .ncsi-card-chip-wrap { position: relative; width: 52px; height: 40px; flex-shrink: 0; }
         .ncsi-card-chip-canvas { width: 52px; height: 40px; border-radius: 6px; display: block; }
         .ncsi-card-type { font-size: 0.65rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 5px; }
@@ -226,7 +270,6 @@
         .ncsi-card-role { font-size: 0.7rem; color: #ffd700; font-weight: 700; }
         .ncsi-card-strip { height: 4px; border-radius: 2px; margin-top: 14px; }
         .card-note { font-size: 0.73rem; color: var(--muted); text-align: center; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        /* Card action buttons */
         .card-actions { display: flex; gap: 8px; margin-top: 14px; }
         .card-action-btn { flex: 1; padding: 10px; border: none; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; pointer-events: all; }
         .card-action-btn.download { background: linear-gradient(135deg, #ff7e67, #ff5e62); color: white; }
@@ -278,6 +321,14 @@
         /* Online indicator */
         .online-dot { width: 9px; height: 9px; border-radius: 50%; background: #2ecc71; border: 2px solid white; position: absolute; bottom: 1px; right: 1px; }
         .conv-avatar { position: relative; }
+
+        /* Google badge on sidebar */
+        .google-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #e8f0fe; color: #4285F4; border-radius: 20px;
+            padding: 1px 7px; font-size: 0.65rem; font-weight: 700;
+            vertical-align: middle; margin-left: 4px;
+        }
     </style>
 </head>
 <body>
@@ -326,9 +377,14 @@
         <div class="login-tabs">
             <button class="login-tab active" onclick="switchTab('login')"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
             <button class="login-tab" onclick="switchTab('register')"><i class="fa-solid fa-user-plus"></i> Register</button>
-            <button class="login-tab" onclick="switchTab('card')"><i class="fa-solid fa-id-card"></i> NCSI Card</button>
+            <button class="login-tab" onclick="switchTab('google')">
+                <svg width="13" height="13" viewBox="0 0 24 24" style="display:inline;vertical-align:middle;margin-right:4px"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Google
+            </button>
+            <button class="login-tab" onclick="switchTab('card')"><i class="fa-solid fa-id-card"></i> Card</button>
         </div>
         <div class="login-body">
+
             <!-- SIGN IN -->
             <div class="login-panel active" id="tab-login">
                 <div class="msg-box error" id="login-error"></div>
@@ -342,6 +398,11 @@
                     <input type="password" id="login-password" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
                 </div>
                 <button class="btn-login" id="btn-do-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to NCSI Chat</button>
+                <div class="google-divider">or</div>
+                <button class="btn-google" onclick="switchTab('google')">
+                    <svg class="g-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    Continue with Google
+                </button>
             </div>
 
             <!-- REGISTER -->
@@ -365,6 +426,46 @@
                     <input type="password" id="reg-password" placeholder="Min. 6 characters">
                 </div>
                 <button class="btn-login" id="btn-do-register" onclick="doRegister()"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+                <div class="google-divider">or</div>
+                <button class="btn-google" onclick="switchTab('google')">
+                    <svg class="g-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    Register with Google instead
+                </button>
+            </div>
+
+            <!-- GOOGLE LOGIN TAB -->
+            <div class="login-panel" id="tab-google">
+                <div class="msg-box error" id="google-error"></div>
+                <div class="msg-box success" id="google-success"></div>
+
+                <!-- Google user info card (shown after Google auth) -->
+                <div class="google-user-info" id="google-user-info">
+                    <img class="google-user-avatar" id="google-avatar-img" src="" alt="" onerror="this.style.display='none'; document.getElementById('google-avatar-fallback').style.display='flex'">
+                    <div class="google-user-avatar-fallback" id="google-avatar-fallback" style="display:none"></div>
+                    <div class="google-user-details">
+                        <div class="google-user-name" id="google-display-name"></div>
+                        <div class="google-user-email" id="google-display-email"></div>
+                    </div>
+                </div>
+
+                <!-- Google Sign-In button (rendered by GIS) -->
+                <div id="g-signin-btn-wrap" style="display:flex;justify-content:center;margin-bottom:10px;min-height:44px;align-items:center;">
+                    <div id="g-signin-btn"></div>
+                </div>
+
+                <!-- After account verified, show Enter Chat button -->
+                <button class="btn-google-signin" id="btn-google-enter" style="display:none" onclick="enterWithGoogle()">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                    Enter NCSI Chat
+                </button>
+                <button class="btn-google-switch" id="btn-google-switch" style="display:none" onclick="resetGoogleLogin()">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> Use a different account
+                </button>
+
+                <p style="text-align:center;font-size:0.78rem;color:var(--muted);margin-top:14px;line-height:1.6;">
+                    <i class="fa-solid fa-shield-halved" style="color:var(--brand)"></i>
+                    Sign in securely with your Google account. No password needed.
+                </p>
             </div>
 
             <!-- NCSI CARD TAB -->
@@ -373,7 +474,6 @@
                     <div class="big-icon"><i class="fa-solid fa-id-card"></i></div>
                     <p style="margin-bottom:14px;">Upload your <strong>NCSI Card</strong> image to verify your identity and sign in instantly.</p>
                 </div>
-                <!-- Card upload area -->
                 <div id="card-upload-area" onclick="ge('card-file-input').click()" style="border:2px dashed #ffccc9;border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:14px;background:#fff9f8;" onmouseover="this.style.borderColor='#ff7e67';this.style.background='#fff5f2'" onmouseout="this.style.borderColor='#ffccc9';this.style.background='#fff9f8'">
                     <div id="card-upload-preview" style="display:none;margin-bottom:8px;">
                         <img id="card-preview-img" src="" alt="Card" style="max-width:100%;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.12);">
@@ -448,7 +548,6 @@
                     <button class="icon-btn" title="Search in chat" onclick="toggleChatSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </div>
-            <!-- In-chat search bar -->
             <div id="chat-search-bar" style="display:none; padding:8px 14px; background:white; border-bottom:1px solid var(--border);">
                 <input type="text" id="chat-search-input" placeholder="Search in conversation…" oninput="searchInChat(this.value)" style="width:100%;padding:7px 12px;border:1.5px solid var(--border);border-radius:16px;font-size:0.85rem;outline:none;font-family:var(--font);">
             </div>
@@ -480,12 +579,12 @@
                     <div class="si-text"><div class="si-label">My NCSI Card</div><div class="si-desc">View your secure identity card</div></div>
                     <i class="fa-solid fa-chevron-right si-arrow"></i>
                 </div>
-                <div class="settings-item" onclick="openModal('modal-profile')">
+                <div class="settings-item" onclick="openModal('modal-profile')" id="settings-edit-profile">
                     <div class="si-icon" style="background:#e8f0ff;color:#667eea;"><i class="fa-solid fa-user-pen"></i></div>
                     <div class="si-text"><div class="si-label">Edit Profile</div><div class="si-desc">Change your display name</div></div>
                     <i class="fa-solid fa-chevron-right si-arrow"></i>
                 </div>
-                <div class="settings-item" onclick="openModal('modal-change-pass')">
+                <div class="settings-item" onclick="openModal('modal-change-pass')" id="settings-change-pass">
                     <div class="si-icon" style="background:#e8fff4;color:#27ae60;"><i class="fa-solid fa-key"></i></div>
                     <div class="si-text"><div class="si-label">Change Password</div><div class="si-desc">Update your account password</div></div>
                     <i class="fa-solid fa-chevron-right si-arrow"></i>
@@ -619,12 +718,13 @@
 <script>
 // ══ CONFIG ══
 const CONFIG = {
-    GAS_URL:          'https://script.google.com/macros/s/AKfycbwMdHlQ_pR-3Va2gGuhdkBKtD_yaKm7zWX-11ZFP1WfaaVqkk0W-VgI6CHHYbCMW0GM/exec',
+    GAS_URL:          'https://script.google.com/macros/s/AKfycbzAF32MAkhCc9sMpJtaj6ww-mzQ7AJLRMtcXfyOJf2tTI2GF8bViGkdm8aWJirApkkLcA/exec',
     SHEET_ID:         '1fn5AndCofYc2NaJVVTgCgnldnXnz8JMCLhgoAQR-XpY',
     OWNER_USERNAME:   'spaceair',
     OWNER_PASSWORD:   'Spaceair@123$',
     OWNER_EMAIL:      'spaceairagency@gmail.com',
-    OWNER_DISPLAY:    'Nabhan Crafts Ideas'
+    OWNER_DISPLAY:    'Nabhan Crafts Ideas',
+    GOOGLE_CLIENT_ID: '226374557186-3h9re1mf4cv4htspdhlct76agsvqupu1.apps.googleusercontent.com'
 };
 
 // ══ STATE ══
@@ -634,6 +734,7 @@ let messages = { owner: [], group: [] };
 let bannedUsers = new Set();
 let pollingInterval = null;
 let chatSearchActive = false;
+let googleCredential = null; // stores decoded Google JWT payload
 
 // ══ CONVERSATIONS ══
 const CONVS = [
@@ -644,14 +745,179 @@ const CONVS = [
 // ══ INIT ══
 window.addEventListener('DOMContentLoaded', () => {
     const saved = sessionStorage.getItem('ncsi_user');
-    if (saved) { currentUser = JSON.parse(saved); launchChat(); }
+    if (saved) { currentUser = JSON.parse(saved); launchChat(); return; }
+
+    // Initialize Google Identity Services after GIS script loads
+    window.onGoogleLibraryLoad = initGoogleLogin;
+    // Fallback if already loaded
+    if (window.google && window.google.accounts) initGoogleLogin();
 });
+
+// ══ GOOGLE IDENTITY SERVICES ══
+function initGoogleLogin() {
+    if (!window.google || !window.google.accounts) return;
+    google.accounts.id.initialize({
+        client_id: CONFIG.GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: true
+    });
+
+    // Render the sign-in button
+    google.accounts.id.renderButton(
+        document.getElementById('g-signin-btn'),
+        {
+            theme: 'outline',
+            size: 'large',
+            shape: 'rectangular',
+            text: 'signin_with',
+            logo_alignment: 'center',
+            width: 300
+        }
+    );
+
+    // Check if there's a stored Google session
+    const savedGoogle = localStorage.getItem('ncsi_google_user');
+    if (savedGoogle) {
+        const gUser = JSON.parse(savedGoogle);
+        prefillGoogleUser(gUser);
+    }
+}
+
+// Called by Google after user picks account
+function handleGoogleCredential(response) {
+    try {
+        // Decode JWT payload (base64url middle part)
+        const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+        googleCredential = payload;
+        prefillGoogleUser(payload);
+        // Save for quick re-login
+        localStorage.setItem('ncsi_google_user', JSON.stringify(payload));
+    } catch(e) {
+        showMsg(ge('google-error'), 'Failed to process Google sign-in. Please try again.');
+    }
+}
+
+function prefillGoogleUser(payload) {
+    ge('google-user-info').classList.add('show');
+    ge('google-display-name').textContent = payload.name || payload.email;
+    ge('google-display-email').textContent = payload.email;
+
+    if (payload.picture) {
+        ge('google-avatar-img').src = payload.picture;
+        ge('google-avatar-img').style.display = 'block';
+        ge('google-avatar-fallback').style.display = 'none';
+    } else {
+        ge('google-avatar-img').style.display = 'none';
+        ge('google-avatar-fallback').style.display = 'flex';
+        ge('google-avatar-fallback').textContent = (payload.name || payload.email).charAt(0).toUpperCase();
+    }
+
+    ge('g-signin-btn-wrap').style.display = 'none';
+    ge('btn-google-enter').style.display = 'flex';
+    ge('btn-google-switch').style.display = 'block';
+    googleCredential = payload;
+}
+
+function resetGoogleLogin() {
+    googleCredential = null;
+    localStorage.removeItem('ncsi_google_user');
+    ge('google-user-info').classList.remove('show');
+    ge('g-signin-btn-wrap').style.display = 'flex';
+    ge('btn-google-enter').style.display = 'none';
+    ge('btn-google-switch').style.display = 'none';
+    hide(ge('google-error')); hide(ge('google-success'));
+    if (window.google && window.google.accounts) {
+        google.accounts.id.cancel();
+        // Re-render button
+        google.accounts.id.renderButton(
+            document.getElementById('g-signin-btn'),
+            { theme: 'outline', size: 'large', shape: 'rectangular', text: 'signin_with', logo_alignment: 'center', width: 300 }
+        );
+    }
+}
+
+async function enterWithGoogle() {
+    if (!googleCredential) { showMsg(ge('google-error'), 'Please sign in with Google first.'); return; }
+    const errEl = ge('google-error'), sucEl = ge('google-success');
+    hide(errEl); hide(sucEl);
+    const btn = ge('btn-google-enter');
+    btn.innerHTML = '<span class="spinner"></span> Verifying…';
+    btn.disabled = true;
+
+    const googleEmail = googleCredential.email;
+    const googleName  = googleCredential.name || googleEmail.split('@')[0];
+    // Use Google email prefix as username (sanitized)
+    const derivedUsername = 'g_' + googleEmail.split('@')[0].replace(/[^a-z0-9_]/gi,'_').toLowerCase();
+
+    try {
+        // Check ban
+        const banRes = await gasRequest({ action: 'checkBan', username: derivedUsername });
+        if (banRes.banned) {
+            showMsg(errEl, 'Your account has been banned from NCSI Chat.');
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/></svg> Enter NCSI Chat';
+            btn.disabled = false; return;
+        }
+
+        // Try to login with Google email; if user not found, auto-register
+        let res = await gasRequest({ action: 'loginGoogle', email: googleEmail, username: derivedUsername });
+
+        if (!res.success && res.notFound) {
+            // Auto-register Google user
+            res = await gasRequest({
+                action: 'registerGoogle',
+                name: googleName,
+                email: googleEmail,
+                username: derivedUsername
+            });
+            if (res.success) {
+                // Send welcome email
+                gasRequest({ action: 'sendEmail', to: googleEmail, subject: 'Welcome to NCSI Chat!', body: `Hi ${googleName},\n\nYour NCSI Chat account (via Google) is ready!\n\nUsername: ${derivedUsername}\n\nEnjoy chatting!\n— Nabhan Crafts Ideas` }).catch(()=>{});
+            }
+        }
+
+        if (res.success) {
+            currentUser = {
+                username: res.username || derivedUsername,
+                displayName: res.displayName || googleName,
+                email: googleEmail,
+                isOwner: false,
+                joinedAt: res.joinedAt || new Date().getFullYear(),
+                googlePicture: googleCredential.picture || null,
+                loginMethod: 'google'
+            };
+            sessionStorage.setItem('ncsi_user', JSON.stringify(currentUser));
+            localStorage.setItem('ncsi_card_owner', currentUser.username);
+            showMsg(sucEl, 'Welcome, ' + currentUser.displayName + '! ✓');
+            sendLoginEmail(googleEmail, currentUser.displayName);
+            setTimeout(launchChat, 700);
+        } else {
+            showMsg(errEl, res.message || 'Google sign-in failed. Please try again.');
+        }
+    } catch(e) {
+        showMsg(errEl, 'Connection error. Please try again.');
+    }
+
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="white" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="white" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="white" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Enter NCSI Chat';
+    btn.disabled = false;
+}
 
 // ══ LOGIN TABS ══
 function switchTab(tab) {
-    const tabs = ['login','register','card'];
+    const tabs = ['login','register','google','card'];
     document.querySelectorAll('.login-tab').forEach((t,i) => t.classList.toggle('active', tabs[i] === tab));
     document.querySelectorAll('.login-panel').forEach((p,i) => p.classList.toggle('active', 'tab-'+tabs[i] === 'tab-'+tab));
+    // Init Google button when Google tab is opened
+    if (tab === 'google') {
+        setTimeout(() => {
+            if (window.google && window.google.accounts && !googleCredential) {
+                google.accounts.id.renderButton(
+                    document.getElementById('g-signin-btn'),
+                    { theme: 'outline', size: 'large', shape: 'rectangular', text: 'signin_with', logo_alignment: 'center', width: 300 }
+                );
+            }
+        }, 50);
+    }
 }
 
 // ══ LOGIN ══
@@ -674,7 +940,6 @@ async function doLogin() {
         setTimeout(launchChat, 700);
     } else {
         try {
-            // Check ban first
             const banRes = await gasRequest({ action: 'checkBan', username });
             if (banRes.banned) { showMsg(errEl, 'Your account has been banned from NCSI Chat.'); btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In to NCSI Chat'; btn.disabled = false; return; }
             const res = await gasRequest({ action: 'login', username, password });
@@ -720,10 +985,28 @@ async function doRegister() {
 function launchChat() {
     ge('login-screen').style.display = 'none';
     ge('chat-app').style.display = 'block';
-    ge('su-av').textContent = currentUser.displayName.charAt(0).toUpperCase();
+
+    // Avatar: Google picture or initials
+    const suAv = ge('su-av');
+    if (currentUser.googlePicture) {
+        suAv.innerHTML = `<img src="${currentUser.googlePicture}" alt="${currentUser.displayName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    } else {
+        suAv.textContent = currentUser.displayName.charAt(0).toUpperCase();
+    }
+
     ge('su-name').textContent = currentUser.displayName;
-    ge('su-role').textContent = currentUser.isOwner ? '👑 Owner' : 'Member';
+
+    let roleText = currentUser.isOwner ? '👑 Owner' : 'Member';
+    if (currentUser.loginMethod === 'google') roleText += ' <span class="google-badge"><svg width="10" height="10" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google</span>';
+    ge('su-role').innerHTML = roleText;
+
     if (currentUser.isOwner) { ge('settings-banned').style.display = 'flex'; }
+
+    // Hide Change Password for Google users (they don't have a password)
+    if (currentUser.loginMethod === 'google') {
+        ge('settings-change-pass').style.display = 'none';
+    }
+
     renderConvList();
     loadAllMessages();
     pollingInterval = setInterval(loadAllMessages, 4000);
@@ -769,9 +1052,6 @@ function openConv(chatId) {
     ge('topbar-name').textContent = conv.name;
 
     const memberCount = new Set(messages.group.map(m => m.username)).size + 1;
-    ge('topbar-status').textContent = chatId === 'group'
-        ? `<i class="fa-solid fa-circle" style="color:#2ecc71;font-size:0.5rem"></i> ${memberCount} members`
-        : '● Online';
     ge('topbar-status').innerHTML = chatId === 'group'
         ? `<i class="fa-solid fa-circle" style="color:#2ecc71;font-size:0.5rem;vertical-align:middle"></i> ${memberCount} members online`
         : `<i class="fa-solid fa-circle" style="color:#2ecc71;font-size:0.5rem;vertical-align:middle"></i> Online`;
@@ -816,10 +1096,8 @@ function renderMessages(searchTerm = '') {
         const msgTime = new Date(msg.timestamp).getTime();
         const sameUser = msg.username === lastUser && (msgTime - lastTime) < 120000;
 
-        // Group messages from same user within 2 mins
         let group = area.querySelector(`.msg-group[data-user="${msg.username}"][data-last="1"]`);
         if (!group || !sameUser) {
-            // Close previous group
             area.querySelectorAll('.msg-group[data-last="1"]').forEach(g => g.removeAttribute('data-last'));
             group = document.createElement('div');
             group.className = `msg-group ${isOut ? 'out' : 'in'}`;
@@ -844,9 +1122,15 @@ function renderMessages(searchTerm = '') {
         const row = document.createElement('div');
         row.className = 'msg-row';
 
-        const avHtml = msg.username === CONFIG.OWNER_USERNAME
-            ? `<div class="msg-av"><img src="channels4_profile.jpg" alt="N"></div>`
-            : `<div class="msg-av" style="${avColor}">${(msg.displayName||msg.username).charAt(0).toUpperCase()}</div>`;
+        // Avatar: use Google picture if available for current user's messages
+        let avHtml;
+        if (msg.username === CONFIG.OWNER_USERNAME) {
+            avHtml = `<div class="msg-av"><img src="channels4_profile.jpg" alt="N"></div>`;
+        } else if (isOut && currentUser.googlePicture) {
+            avHtml = `<div class="msg-av"><img src="${currentUser.googlePicture}" alt="${currentUser.displayName}"></div>`;
+        } else {
+            avHtml = `<div class="msg-av" style="${avColor}">${(msg.displayName||msg.username).charAt(0).toUpperCase()}</div>`;
+        }
 
         row.innerHTML = `
             ${!isOut ? avHtml : ''}
@@ -876,7 +1160,6 @@ async function sendMessage() {
     const text = input.value.trim();
     if (!text || !currentChat) return;
 
-    // Check if user is banned from group
     if (currentChat === 'group' && bannedUsers.has(currentUser.username)) {
         toast('You have been removed from this group.', 'fa-ban'); return;
     }
@@ -907,7 +1190,7 @@ async function loadAllMessages() {
     } catch(e) {}
 }
 
-// ══ BAN / REMOVE MEMBER ══
+// ══ BAN / REMOVE ══
 async function banMemberByMsg(username, displayName) {
     if (!confirm(`Ban "${displayName}" from the group?\nThey won't be able to send messages.`)) return;
     try {
@@ -948,7 +1231,6 @@ function openMembers() {
     list.innerHTML = '';
     const seen = new Set();
 
-    // Owner first
     const ownerRow = document.createElement('div');
     ownerRow.className = 'member-row';
     ownerRow.innerHTML = `
@@ -1020,7 +1302,7 @@ async function saveProfile() {
             currentUser.displayName = newName;
             sessionStorage.setItem('ncsi_user', JSON.stringify(currentUser));
             ge('su-name').textContent = newName;
-            ge('su-av').textContent = newName.charAt(0).toUpperCase();
+            if (!currentUser.googlePicture) ge('su-av').textContent = newName.charAt(0).toUpperCase();
             showMsg(sucEl, 'Profile updated!');
         } else { showMsg(errEl, res.message || 'Failed to update.'); }
     } catch(e) { showMsg(errEl, 'Connection error.'); }
@@ -1028,6 +1310,7 @@ async function saveProfile() {
 
 // ══ CHANGE PASSWORD ══
 async function changePassword() {
+    if (currentUser.loginMethod === 'google') { showMsg(ge('pass-error'), 'Google accounts don\'t use passwords. Sign in with Google.'); ge('pass-error').style.display='block'; return; }
     const current = ge('pass-current').value;
     const newPass = ge('pass-new').value;
     const confirm = ge('pass-confirm').value;
@@ -1050,7 +1333,7 @@ async function sendLoginEmail(email, name) {
     gasRequest({ action: 'sendEmail', to: email, subject: '✅ NCSI Chat — Login Successful', body: `Hi ${name},\n\nYou've successfully signed in to NCSI Chat.\n\nTime: ${now} (Bangladesh Time)\n\nIf this wasn't you, contact us immediately.\n\n— Nabhan Crafts Ideas` }).catch(()=>{});
 }
 
-// ══ NCSI CARD — RANDOM DESIGNS ══
+// ══ NCSI CARD ══
 const CARD_THEMES = [
     { bg: 'linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)', strip: 'linear-gradient(90deg,#ff7e67,#ff5e62,#667eea,#764ba2)', chipStyle: 'classic' },
     { bg: 'linear-gradient(135deg, #0d1b2a, #1b2838, #0a3d62)', strip: 'linear-gradient(90deg,#00d2ff,#3a7bd5,#00d2ff)', chipStyle: 'circuit' },
@@ -1061,31 +1344,19 @@ const CARD_THEMES = [
     { bg: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)', strip: 'linear-gradient(90deg,#f093fb,#f5576c,#4facfe)', chipStyle: 'diamond' },
     { bg: 'linear-gradient(135deg, #134e5e, #71b280)', strip: 'linear-gradient(90deg,#a8ff78,#78ffd6)', chipStyle: 'cross' },
 ];
-
 let currentThemeIdx = 0;
 
 function drawChip(canvas, style) {
     const ctx = canvas.getContext('2d');
     const w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
-
-    // Base chip - always golden
     const chipGrad = ctx.createLinearGradient(0, 0, w, h);
-    chipGrad.addColorStop(0, '#ffd700');
-    chipGrad.addColorStop(0.4, '#ffec6e');
-    chipGrad.addColorStop(0.6, '#c8a200');
-    chipGrad.addColorStop(1, '#ffa500');
+    chipGrad.addColorStop(0, '#ffd700'); chipGrad.addColorStop(0.4, '#ffec6e');
+    chipGrad.addColorStop(0.6, '#c8a200'); chipGrad.addColorStop(1, '#ffa500');
     ctx.fillStyle = chipGrad;
-    ctx.beginPath();
-    ctx.roundRect(0, 0, w, h, 5);
-    ctx.fill();
-
-    // Inner design varies by style
-    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
-    ctx.lineWidth = 1;
-
+    ctx.beginPath(); ctx.roundRect(0, 0, w, h, 5); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 1;
     if (style === 'classic') {
-        // Standard EMV chip pattern
         ctx.strokeRect(6, 6, w-12, h-12);
         ctx.beginPath(); ctx.moveTo(6,h/2); ctx.lineTo(w-6,h/2); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(w/2,6); ctx.lineTo(w/2,h-6); ctx.stroke();
@@ -1120,14 +1391,9 @@ function drawChip(canvas, style) {
         ctx.beginPath(); ctx.moveTo(w-8,6); ctx.lineTo(8,h-6); ctx.stroke();
         ctx.beginPath(); ctx.arc(w/2,h/2,5,0,Math.PI*2); ctx.stroke();
     }
-
-    // Sheen overlay
     const sheen = ctx.createLinearGradient(0,0,0,h);
-    sheen.addColorStop(0,'rgba(255,255,255,0.35)');
-    sheen.addColorStop(0.5,'rgba(255,255,255,0.05)');
-    sheen.addColorStop(1,'rgba(0,0,0,0.15)');
-    ctx.fillStyle = sheen;
-    ctx.beginPath(); ctx.roundRect(0,0,w,h,5); ctx.fill();
+    sheen.addColorStop(0,'rgba(255,255,255,0.35)'); sheen.addColorStop(0.5,'rgba(255,255,255,0.05)'); sheen.addColorStop(1,'rgba(0,0,0,0.15)');
+    ctx.fillStyle = sheen; ctx.beginPath(); ctx.roundRect(0,0,w,h,5); ctx.fill();
 }
 
 function applyCardTheme(idx) {
@@ -1135,8 +1401,7 @@ function applyCardTheme(idx) {
     const card = ge('ncsi-card-el');
     card.style.background = theme.bg;
     ge('card-strip').style.background = theme.strip;
-    const canvas = ge('chip-canvas');
-    drawChip(canvas, theme.chipStyle);
+    drawChip(ge('chip-canvas'), theme.chipStyle);
 }
 
 function openCardModal() {
@@ -1145,20 +1410,16 @@ function openCardModal() {
     ge('card-username').textContent = currentUser.displayName;
     ge('card-id').textContent = 'ID: NCSI-' + btoa(currentUser.username).replace(/=/g,'').toUpperCase().substring(0,14);
     ge('card-since').textContent = 'Since ' + (currentUser.joinedAt || new Date().getFullYear());
-    ge('card-role').textContent = currentUser.isOwner ? '★ Owner' : '◆ Member';
+    ge('card-role').textContent = currentUser.isOwner ? '★ Owner' : (currentUser.loginMethod === 'google' ? '◆ Member · G' : '◆ Member');
     openModal('modal-card');
-    // Draw after modal is visible
     setTimeout(() => applyCardTheme(currentThemeIdx), 30);
 }
 
 // ══ DOWNLOAD CARD ══
 async function downloadCard() {
     const card = ge('ncsi-card-el');
-    // Temporarily re-enable pointer events for capture
     card.style.pointerEvents = 'auto';
-
     try {
-        // Use html2canvas via CDN
         if (!window.html2canvas) {
             toast('Loading download engine…', 'fa-spinner');
             await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
@@ -1208,23 +1469,16 @@ async function loginWithCard() {
     const errEl = ge('card-upload-error'), sucEl = ge('card-upload-success');
     hide(errEl); hide(sucEl);
     if (!uploadedCardDataUrl) { showMsg(errEl, 'Please upload your NCSI Card image first.'); return; }
-
-    // Read the card image with Canvas to extract encoded ID
     const btn = ge('btn-card-login');
     btn.innerHTML = '<span class="spinner"></span> Verifying…';
     btn.disabled = true;
-
     try {
-        // Decode username from image metadata using pixel steganography (simplified: check stored mapping)
         const cardUsername = localStorage.getItem('ncsi_card_owner');
         if (!cardUsername) {
             showMsg(errEl, 'Card not recognized. Please sign in with username & password first to register your card.');
             btn.innerHTML = '<i class="fa-solid fa-id-card"></i> Verify & Sign In with Card';
-            btn.disabled = false;
-            return;
+            btn.disabled = false; return;
         }
-
-        // For owner card
         if (cardUsername === CONFIG.OWNER_USERNAME) {
             currentUser = { username: CONFIG.OWNER_USERNAME, displayName: CONFIG.OWNER_DISPLAY, email: CONFIG.OWNER_EMAIL, isOwner: true, joinedAt: 'Founder' };
             sessionStorage.setItem('ncsi_user', JSON.stringify(currentUser));
@@ -1232,7 +1486,6 @@ async function loginWithCard() {
             sendLoginEmail(currentUser.email, currentUser.displayName);
             setTimeout(launchChat, 700);
         } else {
-            // Fetch user data from GAS using stored username
             const res = await gasRequest({ action: 'getUserByUsername', username: cardUsername });
             if (res.success) {
                 currentUser = { username: res.username, displayName: res.displayName, email: res.email, isOwner: false, joinedAt: res.joinedAt };
@@ -1245,7 +1498,6 @@ async function loginWithCard() {
     } catch(e) {
         showMsg(errEl, 'Verification failed. Please sign in with username & password.');
     }
-
     btn.innerHTML = '<i class="fa-solid fa-id-card"></i> Verify & Sign In with Card';
     btn.disabled = false;
 }
@@ -1266,13 +1518,19 @@ document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('cli
 function signOut() {
     if (!confirm('Sign out of NCSI Chat?')) return;
     clearInterval(pollingInterval);
+    // Sign out from Google if applicable
+    if (currentUser?.loginMethod === 'google' && window.google?.accounts?.id) {
+        google.accounts.id.disableAutoSelect();
+    }
     sessionStorage.removeItem('ncsi_user');
     currentUser = null; currentChat = null; messages = { owner: [], group: [] }; bannedUsers = new Set();
+    googleCredential = null;
     ge('chat-app').style.display = 'none';
     ge('login-screen').style.display = 'flex';
     ge('login-username').value = ''; ge('login-password').value = '';
     ge('active-chat').style.display = 'none';
     ge('chat-welcome').style.display = 'flex';
+    switchTab('login');
 }
 
 // ══ UTILS ══
@@ -1289,7 +1547,6 @@ function toast(msg, icon='fa-circle-info') {
     t._tid = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// Anti-screenshot on card
 document.addEventListener('keydown', e => {
     if (ge('modal-card').classList.contains('open') && e.key === 'PrintScreen') {
         e.preventDefault(); toast('Screenshots disabled on NCSI Card', 'fa-shield-halved');
@@ -1298,100 +1555,41 @@ document.addEventListener('keydown', e => {
 </script>
 
 <!--
-=== UPDATED GAS CODE (Code.gs) — REPLACE YOUR EXISTING GAS CODE WITH THIS ===
+=== UPDATED GAS Code.gs — ADD these new actions to your existing doPost function ===
 
-const SHEET_ID = '1fn5AndCofYc2NaJVVTgCgnldnXnz8JMCLhgoAQR-XpY';
-
-function doPost(e) {
-  const data = JSON.parse(e.postData.contents);
-  const ss = SpreadsheetApp.openById(SHEET_ID);
-  let result = {};
-
-  if (data.action === 'login') {
+  } else if (data.action === 'loginGoogle') {
+    // Find user by email
     const rows = ss.getSheetByName('Users').getDataRange().getValues();
-    const found = rows.find(r => r[0] === data.username);
-    if (found && found[1] === data.password)
+    const found = rows.find(r => r[3] === data.email);
+    if (found) {
       result = { success:true, username:found[0], displayName:found[2], email:found[3], joinedAt:found[4] };
-    else result = { success:false, message:'Invalid credentials.' };
-
-  } else if (data.action === 'register') {
-    const sheet = ss.getSheetByName('Users');
-    const rows = sheet.getDataRange().getValues();
-    if (rows.find(r => r[0] === data.username)) result = { success:false, message:'Username already taken.' };
-    else { sheet.appendRow([data.username, data.password, data.name, data.email, new Date().getFullYear()]); result = { success:true }; }
-
-  } else if (data.action === 'sendMessage') {
-    ss.getSheetByName('Messages').appendRow([data.chatId, data.username, data.displayName, data.text, data.timestamp]);
-    result = { success:true };
-
-  } else if (data.action === 'getMessages') {
-    const msgs = ss.getSheetByName('Messages').getDataRange().getValues().slice(1)
-      .map(r => ({ chatId:r[0], username:r[1], displayName:r[2], text:r[3], timestamp:r[4] }));
-    const banned = ss.getSheetByName('Banned') ? ss.getSheetByName('Banned').getDataRange().getValues().slice(1).map(r=>r[0]) : [];
-    result = { success:true, messages:msgs, banned };
-
-  } else if (data.action === 'banUser') {
-    const sheet = ss.getSheetByName('Banned') || ss.insertSheet('Banned');
-    if (sheet.getLastRow() === 0) sheet.appendRow(['username','bannedAt']);
-    const rows = sheet.getDataRange().getValues();
-    if (!rows.find(r => r[0] === data.username)) sheet.appendRow([data.username, new Date().toISOString()]);
-    // Remove their messages from group
-    const mSheet = ss.getSheetByName('Messages');
-    const mRows = mSheet.getDataRange().getValues();
-    for (let i = mRows.length-1; i >= 1; i--) { if (mRows[i][0]==='group' && mRows[i][1]===data.username) mSheet.deleteRow(i+1); }
-    result = { success:true };
-
-  } else if (data.action === 'unbanUser') {
-    const sheet = ss.getSheetByName('Banned');
-    if (sheet) {
-      const rows = sheet.getDataRange().getValues();
-      for (let i = rows.length-1; i >= 1; i--) { if (rows[i][0]===data.username) sheet.deleteRow(i+1); }
+    } else {
+      // Also check by username (for previously registered Google users)
+      const byUsername = rows.find(r => r[0] === data.username);
+      if (byUsername) result = { success:true, username:byUsername[0], displayName:byUsername[2], email:byUsername[3], joinedAt:byUsername[4] };
+      else result = { success:false, notFound:true, message:'User not found.' };
     }
-    result = { success:true };
 
-  } else if (data.action === 'checkBan') {
-    const sheet = ss.getSheetByName('Banned');
-    const banned = sheet ? sheet.getDataRange().getValues().slice(1).some(r=>r[0]===data.username) : false;
-    result = { banned };
-
-  } else if (data.action === 'clearChat') {
-    const sheet = ss.getSheetByName('Messages');
-    const rows = sheet.getDataRange().getValues();
-    for (let i = rows.length-1; i >= 1; i--) { if (rows[i][0]===data.chatId) sheet.deleteRow(i+1); }
-    result = { success:true };
-
-  } else if (data.action === 'updateProfile') {
+  } else if (data.action === 'registerGoogle') {
     const sheet = ss.getSheetByName('Users');
     const rows = sheet.getDataRange().getValues();
-    for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0] === data.username) { sheet.getRange(i+1, 3).setValue(data.displayName); break; }
+    // Check by email first
+    if (rows.find(r => r[3] === data.email)) {
+      const found = rows.find(r => r[3] === data.email);
+      result = { success:true, username:found[0], displayName:found[2], email:found[3], joinedAt:found[4] };
+    } else if (rows.find(r => r[0] === data.username)) {
+      // Username taken, append random suffix
+      const newUsername = data.username + '_' + Math.floor(Math.random()*1000);
+      sheet.appendRow([newUsername, 'GOOGLE_AUTH', data.name, data.email, new Date().getFullYear()]);
+      result = { success:true, username:newUsername, displayName:data.name, email:data.email, joinedAt:new Date().getFullYear() };
+    } else {
+      sheet.appendRow([data.username, 'GOOGLE_AUTH', data.name, data.email, new Date().getFullYear()]);
+      result = { success:true, username:data.username, displayName:data.name, email:data.email, joinedAt:new Date().getFullYear() };
     }
-    result = { success:true };
 
-  } else if (data.action === 'changePassword') {
-    const sheet = ss.getSheetByName('Users');
-    const rows = sheet.getDataRange().getValues();
-    const idx = rows.findIndex(r => r[0] === data.username);
-    if (idx < 0) { result = { success:false, message:'User not found.' }; }
-    else if (rows[idx][1] !== data.currentPassword) { result = { success:false, message:'Current password is wrong.' }; }
-    else { sheet.getRange(idx+1, 2).setValue(data.newPassword); result = { success:true }; }
-
-  } else if (data.action === 'sendEmail') {
-    try { GmailApp.sendEmail(data.to, data.subject, data.body); result = { success:true }; }
-    catch(err) { result = { success:false, error:err.toString() }; }
-
-  } else if (data.action === 'getUserByUsername') {
-    const rows = ss.getSheetByName('Users').getDataRange().getValues();
-    const found = rows.find(r => r[0] === data.username);
-    if (found) result = { success:true, username:found[0], displayName:found[2], email:found[3], joinedAt:found[4] };
-    else result = { success:false, message:'User not found.' };
-  }
-
-  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-}
-
-=== ALSO ADD A "Banned" SHEET TAB to your Google Sheet ===
-  Banned tab columns: username | bannedAt
+NOTE: Also add your chat domain to the Google Cloud Console → APIs & Services → Credentials
+→ OAuth 2.0 Client → Authorized JavaScript origins.
+Example: https://yourdomain.com
 -->
 </body>
 </html>
