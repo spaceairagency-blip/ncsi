@@ -1,564 +1,253 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIVE COUNT - NCSI</title>
+    <title>LIVE COUNT - Nabhans Crafts Ideas</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             min-height: 100vh;
             background: #0a0a1a;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
         }
 
-        /* ── Canvas background ── */
-        #bgCanvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ── Floating orbs ── */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.18;
-            z-index: 0;
-            pointer-events: none;
-            animation: drift linear infinite;
-        }
-        @keyframes drift {
-            0%   { transform: translate(0, 0) scale(1); }
-            33%  { transform: translate(40px, -60px) scale(1.1); }
-            66%  { transform: translate(-30px, 50px) scale(0.9); }
-            100% { transform: translate(0, 0) scale(1); }
-        }
-
-        /* ── Main card ── */
-        .card {
-            position: relative;
+        .main-wrapper {
+            display: grid;
+            grid-template-columns: 340px 480px 340px;
+            align-items: stretch;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 1500px;
             z-index: 10;
+        }
+
+        @media (max-width: 1200px) {
+            .main-wrapper { grid-template-columns: 1fr 1.2fr; }
+            .wall-frame { grid-column: span 2; }
+        }
+
+        #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        
+        .glass-panel {
             background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 24px;
-            padding: 48px 64px;
-            text-align: center;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.06) inset,
-                0 40px 80px rgba(0,0,0,0.6);
-            max-width: 520px;
-            width: 90%;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         }
 
-        /* ── Brand label ── */
-        .brand {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.35);
-            margin-bottom: 10px;
+        /* LEFT: STEPS */
+        .steps-title { font-size: 13px; font-weight: 700; color: #fbbf24; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 25px; text-align: center; }
+        .step-item {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 15px; padding: 14px; margin-bottom: 12px;
         }
+        .step-num { width: 30px; height: 30px; background: linear-gradient(135deg, #a78bfa, #60a5fa); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .step-text { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.4; }
 
-        /* ── Live badge ── */
-        .live-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            background: rgba(255, 60, 60, 0.18);
-            border: 1px solid rgba(255, 80, 80, 0.35);
-            border-radius: 100px;
-            padding: 5px 14px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            color: #ff6b6b;
-            margin-bottom: 24px;
-            text-transform: uppercase;
-        }
-        .live-dot {
-            width: 7px; height: 7px;
-            background: #ff4444;
-            border-radius: 50%;
-            animation: pulse-red 1.2s ease-in-out infinite;
-        }
-        @keyframes pulse-red {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%       { opacity: 0.4; transform: scale(0.7); }
-        }
+        /* CENTER: CARD */
+        .card { text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .live-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,60,60,0.18); border: 1px solid rgba(255,80,80,0.35); border-radius: 100px; padding: 5px 14px; font-size: 12px; color: #ff6b6b; margin-bottom: 20px; text-transform: uppercase; align-self: center; }
+        .live-dot { width: 7px; height: 7px; background: #ff4444; border-radius: 50%; animation: pulse 1.2s infinite; }
+        @keyframes pulse { 50% { opacity: 0.4; transform: scale(0.8); } }
+        
+        #count { font-size: 84px; font-weight: 800; background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; margin: 5px 0; }
+        .count-label { font-size: 12px; letter-spacing: 4px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 25px; }
 
-        /* ── Channel title ── */
-        .channel-name {
-            font-size: 15px;
-            font-weight: 500;
-            color: rgba(255,255,255,0.55);
-            margin-bottom: 20px;
-            letter-spacing: 0.5px;
-        }
+        .stats-row { display: flex; gap: 10px; margin-bottom: 25px; }
+        .stat-box { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 15px; padding: 12px; }
+        .stat-val { font-size: 18px; font-weight: 700; color: #fff; }
+        .stat-lbl { font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-top: 4px; }
 
-        /* ── Count display ── */
-        .count-wrapper {
-            position: relative;
-            margin: 8px 0 28px;
+        /* RIGHT: WALL */
+        .wall-frame { display: flex; flex-direction: column; max-height: 600px; }
+        .sub-list { flex: 1; overflow-y: auto; padding-right: 8px; }
+        .sub-list::-webkit-scrollbar { width: 4px; }
+        .sub-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        
+        .sub-item { 
+            display: flex; align-items: center; gap: 12px; 
+            background: rgba(255,255,255,0.03); border-radius: 15px; 
+            padding: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.06); 
         }
-        #count {
-            font-size: 76px;
-            font-weight: 700;
-            letter-spacing: -2px;
-            background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1;
-            transition: transform 0.15s ease;
-            display: block;
-        }
-        #count.bump {
-            transform: scale(1.06);
-        }
-        .count-label {
-            font-size: 12px;
-            letter-spacing: 3px;
-            color: rgba(255,255,255,0.3);
-            text-transform: uppercase;
-            margin-top: 8px;
-        }
+        .sub-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #3b82f6); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .sub-info { flex: 1; min-width: 0; }
+        .sub-name { font-size: 14px; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .sub-actions { display: flex; gap: 5px; }
+        .action-btn { background: rgba(255,255,255,0.06); border: none; color: #fff; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-edit:hover { background: rgba(96,165,250,0.2); color: #60a5fa; }
+        .btn-del:hover { background: rgba(248,113,113,0.2); color: #f87171; }
 
-        /* ── Delta pill ── */
-        #delta {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 18px;
-            border-radius: 100px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 28px;
-            transition: all 0.4s ease;
-            min-width: 110px;
-            justify-content: center;
-        }
-        #delta.neutral { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.08); }
-        #delta.gain    { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
-        #delta.loss    { background: rgba(248, 113, 113, 0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+        /* BUTTONS */
+        .btn-main { padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; background: linear-gradient(135deg, #7c3aed, #3b82f6); color: #fff; }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3); }
 
-        /* ── Stats row ── */
-        .stats-row {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 24px;
-        }
-        .stat {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 12px 20px;
-            flex: 1;
-        }
-        .stat-val { font-size: 20px; font-weight: 600; color: #fff; }
-        .stat-lbl { font-size: 10px; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-top: 3px; }
-
-        /* ── Refresh bar ── */
-        .refresh-bar-wrap {
-            background: rgba(255,255,255,0.06);
-            border-radius: 100px;
-            height: 3px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        #refresh-bar {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #a78bfa, #60a5fa);
-            border-radius: 100px;
-            transform-origin: left;
-            animation: shrink 10s linear infinite;
-        }
-        @keyframes shrink {
-            from { transform: scaleX(1); }
-            to   { transform: scaleX(0); }
-        }
-        .refresh-hint {
-            font-size: 10px;
-            color: rgba(255,255,255,0.2);
-            margin-top: 6px;
-            letter-spacing: 1px;
-        }
-
-        /* ── Toast notifications ── */
-        #toast-container {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: flex-end;
-        }
-        .toast {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 20px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 500;
-            max-width: 300px;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            animation: slide-in 0.4s cubic-bezier(0.34,1.56,0.64,1);
-            cursor: pointer;
-        }
-        .toast.gain {
-            background: rgba(20, 50, 35, 0.92);
-            border: 1px solid rgba(52, 211, 153, 0.4);
-            color: #6ee7b7;
-        }
-        .toast.loss {
-            background: rgba(50, 20, 20, 0.92);
-            border: 1px solid rgba(248, 113, 113, 0.4);
-            color: #fca5a5;
-        }
-        .toast-icon { font-size: 22px; }
-        .toast-text { line-height: 1.4; }
-        .toast-title { font-weight: 700; font-size: 13px; letter-spacing: 0.5px; }
-        .toast-body  { font-size: 12px; opacity: 0.75; }
-        .toast.fade-out {
-            animation: slide-out 0.35s ease forwards;
-        }
-        @keyframes slide-in {
-            from { opacity: 0; transform: translateX(60px) scale(0.9); }
-            to   { opacity: 1; transform: translateX(0) scale(1); }
-        }
-        @keyframes slide-out {
-            from { opacity: 1; transform: translateX(0) scale(1); }
-            to   { opacity: 0; transform: translateX(60px) scale(0.9); }
-        }
-
-        /* ── Floating +1 particles ── */
-        .float-particle {
-            position: fixed;
-            font-size: 18px;
-            font-weight: 700;
-            pointer-events: none;
-            z-index: 9998;
-            animation: float-up 1.6s ease-out forwards;
-        }
-        @keyframes float-up {
-            0%   { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-120px) scale(0.6); }
-        }
-
-        /* ── Ripple burst on change ── */
-        #ripple-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 5;
-            pointer-events: none;
-        }
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .modal-overlay.open { display: flex; }
+        .modal { background: #111128; border: 1px solid rgba(255,255,255,0.1); padding: 35px; border-radius: 24px; width: 90%; max-width: 420px; }
+        .form-input { width: 100%; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; margin-bottom: 12px; outline: none; }
     </style>
 </head>
 <body>
 
 <canvas id="bgCanvas"></canvas>
-<canvas id="ripple-canvas"></canvas>
 
-<!-- Floating orbs -->
-<div class="orb" style="width:600px;height:600px;background:#6d28d9;top:-150px;left:-150px;animation-duration:18s;"></div>
-<div class="orb" style="width:500px;height:500px;background:#0ea5e9;bottom:-100px;right:-100px;animation-duration:22s;animation-delay:-7s;"></div>
-<div class="orb" style="width:400px;height:400px;background:#059669;top:40%;left:60%;animation-duration:25s;animation-delay:-13s;"></div>
-<div class="orb" style="width:350px;height:350px;background:#be185d;bottom:20%;left:10%;animation-duration:20s;animation-delay:-5s;"></div>
-
-<div class="card">
-    <div class="brand">Nabhans Crafts Ideas</div>
-
-    <div class="live-badge">
-        <div class="live-dot"></div>
-        Live
+<div class="main-wrapper">
+    <div class="glass-panel">
+        <div class="steps-title">✨ Steps to Join</div>
+        <div class="step-item"><div class="step-num">1</div><div class="step-text">Like the Live Stream 👍</div></div>
+        <div class="step-item"><div class="step-num">2</div><div class="step-text">Subscribe to Channel 🔴</div></div>
+        <div class="step-item"><div class="step-num">3</div><div class="step-text">Turn on Notifications 🔔</div></div>
+        <div class="step-item"><div class="step-num">4</div><div class="step-text">Type your name in Chat ✍️</div></div>
     </div>
 
-    <div class="channel-name">Subscriber Counter</div>
+    <div class="glass-panel card">
+        <div class="live-badge"><div class="live-dot"></div> Live</div>
+        <div style="font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 3px; margin-bottom: 5px;">NABHANS CRAFTS IDEAS</div>
+        <div id="count">0</div>
+        <div class="count-label">Subscribers</div>
 
-    <div class="count-wrapper">
-        <span id="count">—</span>
-        <div class="count-label">subscribers</div>
-    </div>
-
-    <div id="delta" class="neutral">— no change —</div>
-
-    <div class="stats-row">
-        <div class="stat">
-            <div class="stat-val" id="stat-peak">—</div>
-            <div class="stat-lbl">Session peak</div>
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-val" id="gained">+0</div>
+                <div class="stat-lbl">Gained today</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="lost">−0</div>
+                <div class="stat-lbl">Lost today</div>
+            </div>
         </div>
-        <div class="stat">
-            <div class="stat-val" id="stat-gained">+0</div>
-            <div class="stat-lbl">Gained today</div>
-        </div>
-        <div class="stat">
-            <div class="stat-val" id="stat-lost">−0</div>
-            <div class="stat-lbl">Lost today</div>
-        </div>
+
+        <button class="btn-main" onclick="openAddModal()">✍️ Add My Name</button>
     </div>
 
-    <div class="refresh-bar-wrap">
-        <div id="refresh-bar"></div>
+    <div class="glass-panel wall-frame">
+        <div style="text-align:center; color:#fff; font-weight:700; margin-bottom:20px;">👥 Wall of Fame</div>
+        <div class="sub-list" id="subList"></div>
     </div>
-    <div class="refresh-hint">Refreshes every 1 seconds</div>
 </div>
 
-<div id="toast-container"></div>
+<div class="modal-overlay" id="addModal">
+    <div class="modal">
+        <h2 style="color:#fff; margin-bottom:20px; text-align:center;">Add Your Name</h2>
+        <input class="form-input" id="nameInput" placeholder="Enter Name" maxlength="25">
+        <button class="btn-main" style="width:100%" onclick="submitName()">🎉 Join List</button>
+        <button style="width:100%; background:none; border:none; color:rgba(255,255,255,0.4); margin-top:15px; cursor:pointer;" onclick="closeModal()">Cancel</button>
+    </div>
+</div>
 
 <script>
-/* ───────────────────────────────
-   CONFIG — fill these in
-─────────────────────────────── */
-const API_KEY    = 'AIzaSyCx967o-Rb3BPOLgkhIXOHVZeni0ak742o';
-const CHANNEL_ID = 'UCV6XeVyyYqKettwhHXb7cbg';
-const INTERVAL   =  1000; // ms
+    const API_KEY = 'AIzaSyCx967o-Rb3BPOLgkhIXOHVZeni0ak742o';
+    const CHANNEL_ID = 'UCV6XeVyyYqKettwhHXb7cbg';
+    
+    // UI State
+    let prevCount = null;
+    let gainedToday = 0;
+    let lostToday = 0;
+    let subs = JSON.parse(localStorage.getItem('live_subs_v2') || '[]');
 
-/* ───────────────────────────────
-   Particle canvas — starfield
-─────────────────────────────── */
-const bgCanvas = document.getElementById('bgCanvas');
-const ctx = bgCanvas.getContext('2d');
-let stars = [], W, H;
-
-function resizeCanvas() {
-    W = bgCanvas.width  = window.innerWidth;
-    H = bgCanvas.height = window.innerHeight;
-    initStars();
-}
-
-function initStars() {
-    stars = Array.from({ length: 200 }, () => ({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: Math.random() * 1.4 + 0.3,
-        speed: Math.random() * 0.25 + 0.05,
-        opacity: Math.random() * 0.7 + 0.15,
-        twinkle: Math.random() * Math.PI * 2,
-        color: ['#a78bfa','#60a5fa','#34d399','#fff','#f0abfc'][Math.floor(Math.random()*5)]
-    }));
-}
-
-function drawStars(ts) {
-    ctx.clearRect(0, 0, W, H);
-    stars.forEach(s => {
-        s.twinkle += 0.02;
-        const alpha = s.opacity * (0.7 + 0.3 * Math.sin(s.twinkle));
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = s.color;
-        ctx.globalAlpha = alpha;
-        ctx.fill();
-        s.y -= s.speed;
-        if (s.y < -5) { s.y = H + 5; s.x = Math.random() * W; }
-    });
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(drawStars);
-}
-
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-requestAnimationFrame(drawStars);
-
-/* ───────────────────────────────
-   Ripple canvas
-─────────────────────────────── */
-const ripCanvas = document.getElementById('ripple-canvas');
-const rctx = ripCanvas.getContext('2d');
-let ripples = [];
-
-function resizeRip() {
-    ripCanvas.width  = window.innerWidth;
-    ripCanvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeRip);
-resizeRip();
-
-function spawnRipple(color) {
-    const cx = window.innerWidth / 2;
-    const cy = window.innerHeight / 2;
-    ripples.push({ x: cx, y: cy, r: 0, maxR: Math.max(cx, cy) * 1.2, alpha: 0.35, color });
-}
-
-function drawRipples() {
-    rctx.clearRect(0, 0, ripCanvas.width, ripCanvas.height);
-    ripples = ripples.filter(r => r.alpha > 0.01);
-    ripples.forEach(r => {
-        r.r     += 6;
-        r.alpha *= 0.93;
-        rctx.beginPath();
-        rctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
-        rctx.strokeStyle = r.color;
-        rctx.lineWidth   = 2;
-        rctx.globalAlpha = r.alpha;
-        rctx.stroke();
-        rctx.globalAlpha = 1;
-    });
-    requestAnimationFrame(drawRipples);
-}
-drawRipples();
-
-/* ───────────────────────────────
-   Floating +/- number particles
-─────────────────────────────── */
-function spawnParticle(diff) {
-    const p = document.createElement('div');
-    p.className = 'float-particle';
-    p.textContent = diff > 0 ? `+${diff}` : `${diff}`;
-    p.style.color  = diff > 0 ? '#34d399' : '#f87171';
-    p.style.left   = (30 + Math.random() * 40) + 'vw';
-    p.style.bottom = (20 + Math.random() * 20) + 'vh';
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 1700);
-}
-
-/* ───────────────────────────────
-   Toast / push notification
-─────────────────────────────── */
-function showToast(type, diff) {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-
-    const icon = type === 'gain' ? '🎉' : '📉';
-    const title = type === 'gain' ? 'New Subscriber!' : 'Lost a Subscriber';
-    const body  = type === 'gain'
-        ? `You gained ${Math.abs(diff)} subscriber${Math.abs(diff)>1?'s':''}!`
-        : `You lost ${Math.abs(diff)} subscriber${Math.abs(diff)>1?'s':''}.`;
-
-    toast.innerHTML = `
-        <div class="toast-icon">${icon}</div>
-        <div class="toast-text">
-            <div class="toast-title">${title}</div>
-            <div class="toast-body">${body}</div>
-        </div>`;
-
-    toast.onclick = () => dismiss(toast);
-    container.appendChild(toast);
-
-    const timer = setTimeout(() => dismiss(toast), 5000);
-
-    function dismiss(t) {
-        clearTimeout(timer);
-        t.classList.add('fade-out');
-        setTimeout(() => t.remove(), 380);
+    async function fetchYT() {
+        try {
+            const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`);
+            const data = await res.json();
+            const count = parseInt(data.items[0].statistics.subscriberCount);
+            
+            if(prevCount !== null && count !== prevCount) {
+                const diff = count - prevCount;
+                if(diff > 0) gainedToday += diff;
+                else lostToday += Math.abs(diff);
+                updateStats();
+            }
+            
+            document.getElementById('count').innerText = count.toLocaleString();
+            prevCount = count;
+        } catch(e) {}
     }
 
-    /* Browser push notification (requires permission) */
-    if (Notification.permission === 'granted') {
-        new Notification(title, {
-            body,
-            icon: 'https://www.youtube.com/favicon.ico'
-        });
+    function updateStats() {
+        document.getElementById('gained').innerText = `+${gainedToday}`;
+        document.getElementById('lost').innerText = `−${lostToday}`;
     }
-}
 
-/* Ask push permission on load */
-if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-}
+    function renderList() {
+        const list = document.getElementById('subList');
+        list.innerHTML = subs.map((s, i) => `
+            <div class="sub-item">
+                <div class="sub-avatar">${s.name[0].toUpperCase()}</div>
+                <div class="sub-info">
+                    <div class="sub-name">${s.name}</div>
+                    <div style="font-size:10px; color:rgba(255,255,255,0.3)">Joined ${s.time}</div>
+                </div>
+                <div class="sub-actions">
+                    <button class="action-btn btn-edit" onclick="editName(${i})">✏️</button>
+                    <button class="action-btn btn-del" onclick="deleteName(${i})">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    }
 
-/* ───────────────────────────────
-   State
-─────────────────────────────── */
-let prevCount  = null;
-let sessionGained = 0;
-let sessionLost   = 0;
-let peakCount  = null;
+    function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+    function closeModal() { document.getElementById('addModal').classList.remove('open'); }
 
-function fmt(n) {
-    return Number(n).toLocaleString();
-}
+    function submitName() {
+        const name = document.getElementById('nameInput').value.trim();
+        if(!name) return;
+        subs.unshift({ name, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+        saveAndRender();
+        closeModal();
+        document.getElementById('nameInput').value = "";
+    }
 
-function updateUI(count) {
-    const countEl = document.getElementById('count');
-    const deltaEl = document.getElementById('delta');
-
-    /* Animate count bump */
-    countEl.textContent = fmt(count);
-    countEl.classList.add('bump');
-    setTimeout(() => countEl.classList.remove('bump'), 200);
-
-    /* Peak */
-    if (peakCount === null || count > peakCount) peakCount = count;
-    document.getElementById('stat-peak').textContent = fmt(peakCount);
-
-    if (prevCount !== null && count !== prevCount) {
-        const diff = count - prevCount;
-        const type = diff > 0 ? 'gain' : 'loss';
-
-        /* Delta pill */
-        deltaEl.className  = `${type}`;
-        deltaEl.textContent = diff > 0 ? `+${fmt(diff)} subscriber${Math.abs(diff)>1?'s':''}` : `${fmt(diff)} subscriber${Math.abs(diff)>1?'s':''}`;
-
-        /* Session stats */
-        if (diff > 0) { sessionGained += diff; }
-        else          { sessionLost   += Math.abs(diff); }
-        document.getElementById('stat-gained').textContent = `+${fmt(sessionGained)}`;
-        document.getElementById('stat-lost').textContent   = `−${fmt(sessionLost)}`;
-
-        /* Effects */
-        showToast(type, diff);
-        spawnRipple(diff > 0 ? 'rgba(52,211,153,0.6)' : 'rgba(248,113,113,0.6)');
-        for (let i = 0; i < Math.min(Math.abs(diff), 6); i++) {
-            setTimeout(() => spawnParticle(diff), i * 180);
+    function deleteName(index) {
+        if(confirm("Remove this name?")) {
+            subs.splice(index, 1);
+            saveAndRender();
         }
-    } else if (prevCount === null) {
-        /* First load */
-        deltaEl.className   = 'neutral';
-        deltaEl.textContent = '— just loaded —';
-        document.getElementById('stat-gained').textContent = '+0';
-        document.getElementById('stat-lost').textContent   = '−0';
     }
 
-    prevCount = count;
-}
+    function editName(index) {
+        const newName = prompt("Edit name:", subs[index].name);
+        if(newName) {
+            subs[index].name = newName;
+            saveAndRender();
+        }
+    }
 
-/* ───────────────────────────────
-   YouTube API fetch
-─────────────────────────────── */
-function fetchCount() {
-    fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`)
-        .then(r => r.json())
-        .then(data => {
-            const count = parseInt(data.items[0].statistics.subscriberCount, 10);
-            updateUI(count);
-        })
-        .catch(() => {
-            document.getElementById('count').textContent = 'Error';
-        });
-}
+    function saveAndRender() {
+        localStorage.setItem('live_subs_v2', JSON.stringify(subs));
+        renderList();
+    }
 
-/* Restart the bar animation on each tick */
-function restartBar() {
-    const bar = document.getElementById('refresh-bar');
-    bar.style.animation = 'none';
-    bar.offsetHeight; /* reflow */
-    bar.style.animation = `shrink ${INTERVAL/1000}s linear infinite`;
-}
+    // BG Animation
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
+    function animate() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "rgba(255,255,255,0.1)";
+        for(let i=0; i<50; i++) ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
+        requestAnimationFrame(animate);
+    }
+    animate();
 
-fetchCount();
-setInterval(() => { fetchCount(); restartBar(); }, INTERVAL);
+    setInterval(fetchYT, 3000);
+    fetchYT();
+    renderList();
 </script>
+
 </body>
 </html>
